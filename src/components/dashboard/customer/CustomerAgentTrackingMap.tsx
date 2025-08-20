@@ -24,7 +24,6 @@ interface PulsingDot {
 const CustomerAgentTrackingMap = () => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
-
   const dummyCustomerId = 'CUSTOMER001';
 
   useEffect(() => {
@@ -51,7 +50,6 @@ const CustomerAgentTrackingMap = () => {
         if (!context) return false;
 
         context.clearRect(0, 0, this.width, this.height);
-
         context.beginPath();
         context.arc(
           this.width / 2,
@@ -79,15 +77,14 @@ const CustomerAgentTrackingMap = () => {
 
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current!,
-      style: 'mapbox://styles/mapbox/light-v11',
+      style: 'mapbox://styles/mapbox/streets-v11',
       center: [0, 20],
       zoom: 1.5,
-      projection: 'equirectangular',
+      projection: 'mercator',
     });
 
     mapRef.current.on('load', () => {
       mapRef.current?.addImage('pulsing-dot', pulsingDot, { pixelRatio: 2 });
-
       mapRef.current?.addSource('agent-location', {
         type: 'geojson',
         data: {
@@ -95,7 +92,6 @@ const CustomerAgentTrackingMap = () => {
           features: [],
         },
       });
-
       mapRef.current?.addLayer({
         id: 'agent-point',
         type: 'symbol',
@@ -110,9 +106,13 @@ const CustomerAgentTrackingMap = () => {
 
     socket.emit('joinCustomerRoom', dummyCustomerId);
 
+    let lastUpdate = 0;
     socket.on('locationUpdate', (loc: { lat: number; lng: number }) => {
-      if (!mapRef.current) return;
+      const now = Date.now();
+      if (now - lastUpdate < 1000) return;
+      lastUpdate = now;
 
+      if (!mapRef.current) return;
       const source = mapRef.current.getSource(
         'agent-location',
       ) as mapboxgl.GeoJSONSource;
@@ -126,8 +126,11 @@ const CustomerAgentTrackingMap = () => {
           },
         ],
       });
-
-      mapRef.current.flyTo({ center: [loc.lng, loc.lat], zoom: 10 });
+      if (mapRef.current.getZoom() < 5) {
+        mapRef.current.jumpTo({ center: [loc.lng, loc.lat], zoom: 14 });
+      } else {
+        mapRef.current.setCenter([loc.lng, loc.lat]);
+      }
     });
 
     return () => {
