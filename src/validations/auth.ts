@@ -17,6 +17,9 @@ export const signupSchema = z
       .min(2, { message: 'Last name must be at least 2 characters' })
       .max(32, { message: 'Last name cannot exceed 32 characters' }),
     email: z.string().email({ message: 'Please enter a valid email address' }),
+    phone: z.string().regex(/^[0-9]{11}$/, {
+      message: 'Please enter a valid 10-digit phone number',
+    }),
     password: z
       .string()
       .min(8, { message: 'Password must be at least 8 characters' })

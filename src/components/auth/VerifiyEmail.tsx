@@ -27,17 +27,38 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from '../ui/input-otp';
+import { useSelector } from 'react-redux';
+import { Loader } from 'lucide-react';
+import { toast } from 'sonner';
+import { RootState } from '../../lib/features/store';
+import { useVerifyEmailMutation } from '../../lib/features/services/auth/authApi';
 
 const VerifyEmail = () => {
+  const { verifyToken } = useSelector((store: RootState) => store.auth);
+  const [verifyEmail, { isLoading }] = useVerifyEmailMutation();
   const form = useForm<z.infer<typeof verifiyEmailSchema>>({
     resolver: zodResolver(verifiyEmailSchema),
     defaultValues: {
       otp: '',
     },
   });
-
   async function onSubmit(data: z.infer<typeof verifiyEmailSchema>) {
-    console.log(data);
+    await toast.promise(
+      verifyEmail({
+        otp: Number(data.otp),
+        token: String(verifyToken),
+      })
+        .unwrap()
+        .then((res) => {
+          window.location.href = '/sign-in';
+          return res;
+        }),
+      {
+        loading: 'Verifying your account...',
+        success: (res) => res?.message,
+        error: (err) => err?.data?.message,
+      },
+    );
   }
 
   return (
@@ -87,7 +108,8 @@ const VerifyEmail = () => {
                       )}
                     />
                   </div>
-                  <Button type="submit" className="w-full">
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading && <Loader className="animate-spin" />}
                     Complete Verification
                   </Button>
                 </div>

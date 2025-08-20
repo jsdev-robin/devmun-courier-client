@@ -24,8 +24,14 @@ import Link from 'next/link';
 import { Button } from '../ui/button';
 import SocialAuth from './particles/SocialAuth';
 import { signupSchema } from '../../validations/auth';
+import { Loader } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { useSignupMutation } from '../../lib/features/services/auth/authApi';
 
 const SignUp = () => {
+  const router = useRouter();
+  const [signup, { isLoading }] = useSignupMutation();
   const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
     mode: 'onChange',
@@ -33,13 +39,26 @@ const SignUp = () => {
       familyName: 'Robin',
       givenName: 'Mind',
       email: 'robin.rh656@gmail.com',
+      phone: '01763408494',
       password: 'XLrewd875@',
       passwordConfirm: 'XLrewd875@',
     },
   });
 
   async function onSubmit(data: z.infer<typeof signupSchema>) {
-    console.log(data);
+    await toast.promise(
+      signup(data)
+        .unwrap()
+        .then((res) => {
+          router.push('/verify-email');
+          return res;
+        }),
+      {
+        loading: 'Signing up...',
+        success: (res) => res?.message,
+        error: (err) => err?.data?.message,
+      },
+    );
   }
 
   return (
@@ -104,6 +123,19 @@ const SignUp = () => {
                       />
                       <FormField
                         control={form.control}
+                        name="phone"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Phone</FormLabel>
+                            <FormControl>
+                              <Input {...field} type="number" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
                         name="password"
                         render={({ field }) => (
                           <FormItem>
@@ -128,7 +160,12 @@ const SignUp = () => {
                           </FormItem>
                         )}
                       />
-                      <Button type="submit" className="w-full">
+                      <Button
+                        type="submit"
+                        className="w-full"
+                        disabled={isLoading}
+                      >
+                        {isLoading && <Loader className="animate-spin" />}
                         Sign up
                       </Button>
                     </div>

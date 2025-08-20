@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@plugin "@tailwindcss/forms";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -51,9 +52,9 @@
   --card-foreground: oklch(0.141 0.005 285.823);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.141 0.005 285.823);
-  --primary: oklch(0.623 0.214 259.815);
+  /* --primary: oklch(0.623 0.214 259.815); */
   --primary-foreground: oklch(0.97 0.014 254.604);
-  --secondary: oklch(0.967 0.001 286.375);
+  /* --secondary: oklch(0.967 0.001 286.375); */
   --secondary-foreground: oklch(0.21 0.006 285.885);
   --muted: oklch(0.967 0.001 286.375);
   --muted-foreground: oklch(0.552 0.016 285.938);
@@ -76,6 +77,17 @@
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.623 0.214 259.815);
+
+  --primary: oklch(0.704 0.191 251.813);
+  --primary-dark: oklch(0.624 0.191 251.813);
+  --secondary: oklch(0.278 0.033 256.848);
+  --success: oklch(0.787 0.194 149.213);
+  --warning: oklch(0.796 0.169 70.697);
+  --danger: oklch(0.704 0.201 27.322);
+  --light: oklch(0.967 0.007 256.799);
+  --dark: oklch(0.278 0.033 256.848);
+  --gray: oklch(0.718 0.022 256.802);
+  --light-gray: oklch(0.968 0.006 256.802);
 }
 
 .dark {

@@ -25,8 +25,12 @@ import { Checkbox } from '../ui/checkbox';
 import { Button } from '../ui/button';
 import SocialAuth from './particles/SocialAuth';
 import { signinSchema } from '../../validations/auth';
+import { useSigninMutation } from '../../lib/features/services/auth/authApi';
+import { Loader } from 'lucide-react';
+import { toast } from 'sonner';
 
 const SignIn = () => {
+  const [signin, { isLoading }] = useSigninMutation();
   const form = useForm<z.infer<typeof signinSchema>>({
     resolver: zodResolver(signinSchema),
     mode: 'onChange',
@@ -37,7 +41,26 @@ const SignIn = () => {
     },
   });
   async function onSubmit(data: z.infer<typeof signinSchema>) {
-    console.log(data);
+    await toast.promise(
+      signin(data)
+        .unwrap()
+        .then((res) => res),
+      {
+        loading: 'Signing in...',
+        success: (res) => {
+          if (res.data.enable2fa) {
+            window.location.href = '/sign-in/verify-2fa';
+          } else {
+            window.location.href =
+              res.data.role === 'admin'
+                ? '/dashboard/admin/overview'
+                : '/dashboard/agent/overview';
+          }
+          return res?.message;
+        },
+        error: (err) => err?.data?.message,
+      },
+    );
   }
 
   return (
@@ -113,7 +136,12 @@ const SignIn = () => {
                           Forgot your password?
                         </Link>
                       </div>
-                      <Button type="submit" className="w-full">
+                      <Button
+                        type="submit"
+                        className="w-full"
+                        disabled={isLoading}
+                      >
+                        {isLoading && <Loader className="animate-spin" />}
                         Sign in
                       </Button>
                       <SocialAuth />
