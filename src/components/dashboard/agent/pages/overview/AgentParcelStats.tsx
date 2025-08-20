@@ -14,7 +14,7 @@ const AgentParcelStats = () => {
   useEffect(() => {
     if (!('geolocation' in navigator)) return;
 
-    const socket: Socket = io('http://localhost:8080', {
+    const socket: Socket = io('https://devmun-courier-server.vercel.app', {
       withCredentials: true,
     });
 
