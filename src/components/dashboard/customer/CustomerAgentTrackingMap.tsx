@@ -49,55 +49,49 @@ const CustomerAgentTrackingMap = () => {
 
     const pulsingDot = createPulsingDot(mapRef.current);
 
-    mapRef.current.on('load', () => {
-      mapRef.current?.addImage('pulsing-dot', pulsingDot, { pixelRatio: 2 });
+    if (location) {
+      mapRef.current.on('load', () => {
+        mapRef.current?.addImage('pulsing-dot', pulsingDot, {
+          pixelRatio: 2,
+        });
 
-      mapRef.current?.addSource('agent-location', {
-        type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: [],
-        },
+        mapRef.current?.addSource('dot-point', {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: [
+              {
+                type: 'Feature',
+                geometry: {
+                  type: 'Point',
+                  coordinates: [location?.lng, location?.lat],
+                },
+                properties: {},
+              },
+            ],
+          },
+        });
+
+        mapRef.current?.addLayer({
+          id: 'points',
+          type: 'symbol',
+          source: 'dot-point',
+          layout: {
+            'icon-image': 'pulsing-dot',
+          },
+        });
       });
 
-      mapRef.current?.addLayer({
-        id: 'agent-point',
-        type: 'symbol',
-        source: 'agent-location',
-        layout: { 'icon-image': 'pulsing-dot' },
+      mapRef.current.flyTo({
+        center: [location?.lng, location?.lat],
+        zoom: 12,
+        speed: 1.2,
       });
-    });
+    }
 
     return () => {
       mapRef.current?.remove();
     };
-  }, []);
-
-  useEffect(() => {
-    if (!location || !mapRef.current) return;
-
-    const source = mapRef.current.getSource(
-      'agent-location',
-    ) as mapboxgl.GeoJSONSource;
-    source?.setData({
-      type: 'FeatureCollection',
-      features: [
-        {
-          type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: [location?.lng, location?.lat],
-          },
-          properties: {},
-        },
-      ],
-    });
-
-    if (mapRef.current.getZoom() < 5) {
-      mapRef.current.jumpTo({ center: [location.lng, location.lat], zoom: 14 });
-    } else {
-      mapRef.current.setCenter([location.lng, location.lat]);
-    }
   }, [location]);
 
   return (

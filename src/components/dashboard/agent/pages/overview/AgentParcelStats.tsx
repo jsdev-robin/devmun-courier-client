@@ -25,6 +25,7 @@ const AgentParcelStats = () => {
 
       return () => {
         navigator.geolocation.clearWatch(watchId);
+        socket.emit('agentDisconnect', dummyCustomerId);
       };
     }
   }, []);
