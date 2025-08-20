@@ -18,7 +18,6 @@ const AgentParcelStats = () => {
             lat: coords.latitude,
             lng: coords.longitude,
           });
-          console.log('Sent location:', coords.latitude, coords.longitude);
         },
         (err) => console.error(err),
         { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 },
@@ -26,13 +25,8 @@ const AgentParcelStats = () => {
 
       return () => {
         navigator.geolocation.clearWatch(watchId);
-        socket.disconnect();
       };
     }
-
-    return () => {
-      socket.disconnect();
-    };
   }, []);
 
   return (

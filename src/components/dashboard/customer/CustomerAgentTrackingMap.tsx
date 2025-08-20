@@ -79,14 +79,14 @@ const CustomerAgentTrackingMap = () => {
     const source = mapRef.current.getSource(
       'agent-location',
     ) as mapboxgl.GeoJSONSource;
-    source.setData({
+    source?.setData({
       type: 'FeatureCollection',
       features: [
         {
           type: 'Feature',
           geometry: {
             type: 'Point',
-            coordinates: [location.lng, location.lat],
+            coordinates: [location?.lng, location?.lat],
           },
           properties: {},
         },
