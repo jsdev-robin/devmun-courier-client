@@ -1,9 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import { io, Socket } from 'socket.io-client';
+import { useEffect, useRef, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -11,22 +8,36 @@ import {
   CardHeader,
   CardTitle,
 } from '../../ui/card';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import { socket } from '../../../lib/socket';
+import { PulsingDot } from '../../../utils/pulsingDot';
 
-interface PulsingDot {
-  width: number;
-  height: number;
-  data: Uint8ClampedArray;
-  context: CanvasRenderingContext2D | null;
-  onAdd(): void;
-  render(): boolean;
-}
-
-const CustomerAgentTrackingMap = () => {
-  const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<mapboxgl.Map | null>(null);
+const CustomerAgentTracking = () => {
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
+    null,
+  );
   const dummyCustomerId = 'CUSTOMER001';
+  useEffect(() => {
+    socket.emit('joinCustomerRoom', dummyCustomerId);
+    socket.on('locationUpdate', (loc: { lat: number; lng: number }) => {
+      setLocation(loc);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
+    console.log('Updated location:', location);
+  }, [location]);
+
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!mapContainerRef.current) return;
     mapboxgl.accessToken =
       'pk.eyJ1Ijoicm9iaW5taW5kIiwiYSI6ImNtOGozb2xrcDBmaXgycXNlanl6NTI1bzEifQ.q7zst4iSdDY5rtAI_Sw_KQ';
 
@@ -47,9 +58,11 @@ const CustomerAgentTrackingMap = () => {
         const radius = (this.width / 2) * 0.3;
         const outerRadius = (this.width / 2) * 0.7 * t + radius;
         const context = this.context;
+
         if (!context) return false;
 
         context.clearRect(0, 0, this.width, this.height);
+
         context.beginPath();
         context.arc(
           this.width / 2,
@@ -70,91 +83,84 @@ const CustomerAgentTrackingMap = () => {
         context.stroke();
 
         this.data = context.getImageData(0, 0, this.width, this.height).data;
+
         mapRef.current?.triggerRepaint();
         return true;
       },
     };
 
     mapRef.current = new mapboxgl.Map({
-      container: mapContainerRef.current!,
-      style: 'mapbox://styles/mapbox/streets-v11',
+      container: mapContainerRef.current as HTMLElement,
+      style: 'mapbox://styles/mapbox/light-v11',
       center: [0, 20],
       zoom: 1.5,
       projection: 'mercator',
     });
 
-    mapRef.current.on('load', () => {
-      mapRef.current?.addImage('pulsing-dot', pulsingDot, { pixelRatio: 2 });
-      mapRef.current?.addSource('agent-location', {
-        type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: [],
-        },
-      });
-      mapRef.current?.addLayer({
-        id: 'agent-point',
-        type: 'symbol',
-        source: 'agent-location',
-        layout: { 'icon-image': 'pulsing-dot' },
-      });
-    });
+    // new mapboxgl.Marker()
+    //   .setLngLat([23.8435892, 90.0116677])
+    //   .addTo(mapRef.current);
 
-    const socket: Socket = io('https://courier-api.devmun.xyz', {
-      withCredentials: true,
-    });
+    // new mapboxgl.Marker({ color: 'black', rotation: 45 })
+    //   .setLngLat([12.65147, 55.608166])
+    //   .addTo(mapRef.current);
 
-    socket.emit('joinCustomerRoom', dummyCustomerId);
+    if (location) {
+      mapRef.current.on('load', () => {
+        mapRef.current?.addImage('pulsing-dot', pulsingDot, {
+          pixelRatio: 2,
+        });
 
-    let lastUpdate = 0;
-    socket.on('locationUpdate', (loc: { lat: number; lng: number }) => {
-      const now = Date.now();
-      if (now - lastUpdate < 1000) return;
-      lastUpdate = now;
-
-      if (!mapRef.current) return;
-      const source = mapRef.current.getSource(
-        'agent-location',
-      ) as mapboxgl.GeoJSONSource;
-      source.setData({
-        type: 'FeatureCollection',
-        features: [
-          {
-            type: 'Feature',
-            geometry: { type: 'Point', coordinates: [loc.lng, loc.lat] },
-            properties: {},
+        mapRef.current?.addSource('dot-point', {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: location
+              ? [
+                  {
+                    type: 'Feature',
+                    geometry: {
+                      type: 'Point',
+                      coordinates: [location.lng, location.lat],
+                    },
+                    properties: {},
+                  },
+                ]
+              : [],
           },
-        ],
+        });
+
+        mapRef.current?.addLayer({
+          id: 'points',
+          type: 'symbol',
+          source: 'dot-point',
+          layout: {
+            'icon-image': 'pulsing-dot',
+          },
+        });
       });
-      if (mapRef.current.getZoom() < 5) {
-        mapRef.current.jumpTo({ center: [loc.lng, loc.lat], zoom: 14 });
-      } else {
-        mapRef.current.setCenter([loc.lng, loc.lat]);
-      }
-    });
+    }
 
     return () => {
-      socket.disconnect();
       mapRef.current?.remove();
     };
-  }, []);
+  }, [location]);
 
   return (
     <section>
       <div className="container">
         <Card>
           <CardHeader>
-            <CardTitle>Real-Time Agent Tracking</CardTitle>
+            <CardTitle>Real-Time Agent Tracking (Console Only)</CardTitle>
             <CardDescription>
-              View live agent locations worldwide with interactive pulsing
-              markers. Monitor delivery activity across different regions in
-              real time.
+              Open your browser console to see live agent location updates.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div
               ref={mapContainerRef}
               className="w-full h-120 rounded-xl overflow-hidden border border-border"
+              id="map"
             />
           </CardContent>
         </Card>
@@ -163,4 +169,4 @@ const CustomerAgentTrackingMap = () => {
   );
 };
 
-export default CustomerAgentTrackingMap;
+export default CustomerAgentTracking;
