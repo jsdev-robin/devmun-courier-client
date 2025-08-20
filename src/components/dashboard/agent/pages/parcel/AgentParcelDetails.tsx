@@ -14,7 +14,6 @@ import {
   MessageCircle,
   Package2,
   Phone,
-  QrCode,
   Truck,
   XCircle,
 } from 'lucide-react';
@@ -29,6 +28,7 @@ import {
 } from '../../../../ui/card';
 import Typography from '../../../../ui/typography';
 import { Scanner } from '@yudiel/react-qr-scanner';
+import { QRCodeCanvas } from 'qrcode.react';
 
 const AgentParcelDetails = () => {
   const [open, setOpen] = useState(false);
@@ -419,7 +419,7 @@ const AgentParcelDetails = () => {
                       />
                     ) : (
                       <div className="size-60 mx-auto rounded-xl bg-muted flex items-center justify-center">
-                        <QrCode className="size-20" />
+                        <QRCodeCanvas value={'oribn'} size={240} />
                       </div>
                     )}
                     {scanResult && (

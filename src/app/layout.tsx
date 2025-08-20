@@ -3,6 +3,7 @@ import { Inter, Merriweather, Poppins, Roboto } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'sonner';
 import { cn } from '../lib/utils';
+import StoreProvider from './StoreProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -87,8 +88,10 @@ export default function RootLayout({
           merriweather.variable,
         )}
       >
-        {children}
-        <Toaster position="bottom-right" richColors />
+        <StoreProvider>
+          {children}
+          <Toaster position="bottom-right" richColors />
+        </StoreProvider>
       </body>
     </html>
   );
