@@ -1,5 +1,28 @@
 import React from 'react';
 
+const steps = [
+  {
+    number: 1,
+    title: 'Book a Parcel',
+    description: 'Create a shipment with pickup and delivery details',
+  },
+  {
+    number: 2,
+    title: 'Assign Agent',
+    description: 'Assign the delivery to an available agent',
+  },
+  {
+    number: 3,
+    title: 'Track Delivery',
+    description: 'Monitor the parcel in real-time',
+  },
+  {
+    number: 4,
+    title: 'Receive Confirmation',
+    description: 'Get delivery confirmation and feedback',
+  },
+];
+
 const HomeHowItWork = () => {
   return (
     <section className="py-20 bg-gray-50">
@@ -13,48 +36,20 @@ const HomeHowItWork = () => {
           </p>
         </div>
         <div className="flex flex-col lg:flex-row justify-between max-w-5xl mx-auto">
-          <div className="relative text-center px-6 py-4 lg:w-1/4 mb-10 lg:mb-0">
-            <div className="bg-primary w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">
-              1
+          {steps.map(({ number, title, description }, i) => (
+            <div
+              key={i}
+              className="relative text-center px-6 py-4 lg:w-1/4 mb-10 lg:mb-0"
+            >
+              <div className="bg-primary w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">
+                {number}
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">
+                {title}
+              </h3>
+              <p className="text-gray-600">{description}</p>
             </div>
-            <h3 className="text-xl font-semibold text-gray-800 mb-3">
-              Book a Parcel
-            </h3>
-            <p className="text-gray-600">
-              Create a shipment with pickup and delivery details
-            </p>
-          </div>
-          <div className="relative text-center px-6 py-4 lg:w-1/4 mb-10 lg:mb-0">
-            <div className="bg-primary w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">
-              2
-            </div>
-            <h3 className="text-xl font-semibold text-gray-800 mb-3">
-              Assign Agent
-            </h3>
-            <p className="text-gray-600">
-              Assign the delivery to an available agent
-            </p>
-          </div>
-          <div className="relative text-center px-6 py-4 lg:w-1/4 mb-10 lg:mb-0">
-            <div className="bg-primary w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">
-              3
-            </div>
-            <h3 className="text-xl font-semibold text-gray-800 mb-3">
-              Track Delivery
-            </h3>
-            <p className="text-gray-600">Monitor the parcel in real-time</p>
-          </div>
-          <div className="relative text-center px-6 py-4 lg:w-1/4">
-            <div className="bg-primary w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">
-              4
-            </div>
-            <h3 className="text-xl font-semibold text-gray-800 mb-3">
-              Receive Confirmation
-            </h3>
-            <p className="text-gray-600">
-              Get delivery confirmation and feedback
-            </p>
-          </div>
+          ))}
         </div>
       </div>
     </section>

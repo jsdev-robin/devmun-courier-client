@@ -1,9 +1,41 @@
-import React from 'react';
+'use client';
+
+import { useEffect } from 'react';
+
 import { Card, CardAction, CardHeader, CardTitle } from '../../../../ui/card';
 import Heading from '../../../../ui/heading';
 import { AlertTriangle, CircleCheck, Clock, Package2 } from 'lucide-react';
 
+import { io, Socket } from 'socket.io-client';
+
 const AgentParcelStats = () => {
+  const dummyCustomerId = 'CUSTOMER001';
+
+  useEffect(() => {
+    if (!('geolocation' in navigator)) return;
+
+    const socket: Socket = io('http://localhost:8080', {
+      withCredentials: true,
+    });
+
+    const watchId = navigator.geolocation.watchPosition(
+      ({ coords }) => {
+        socket.emit('agentLocation', {
+          customerId: dummyCustomerId,
+          lat: coords.latitude,
+          lng: coords.longitude,
+        });
+        console.log('Sent location:', coords.latitude, coords.longitude);
+      },
+      (err) => console.error(err),
+      { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 },
+    );
+
+    return () => {
+      navigator.geolocation.clearWatch(watchId);
+      socket.disconnect();
+    };
+  }, []);
   return (
     <section>
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">

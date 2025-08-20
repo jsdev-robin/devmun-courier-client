@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import React from 'react';
 
 const Header = () => {
@@ -56,18 +57,18 @@ const Header = () => {
             </ul>
           </nav>
           <div className="flex space-x-4">
-            <a
-              href="#"
+            <Link
+              href="/sign-in"
               className="border border-primary text-primary px-4 py-2 rounded-lg font-medium hover:bg-primary hover:text-white transition"
             >
               Login
-            </a>
-            <a
-              href="#"
+            </Link>
+            <Link
+              href="/sign-up"
               className="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-dark transition"
             >
               Register
-            </a>
+            </Link>
           </div>
         </div>
       </div>
