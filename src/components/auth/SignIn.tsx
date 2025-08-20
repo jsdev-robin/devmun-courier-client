@@ -47,17 +47,17 @@ const SignIn = () => {
         .then((res) => res),
       {
         loading: 'Signing in...',
-        success: (res) => {
-          if (res.data.enable2fa) {
-            window.location.href = '/sign-in/verify-2fa';
-          } else {
-            window.location.href =
-              res.data.role === 'admin'
-                ? '/dashboard/admin/overview'
-                : '/dashboard/agent/overview';
-          }
-          return res?.message;
-        },
+        // success: (res) => {
+        //   if (res.data.enable2fa) {
+        //     window.location.href = '/sign-in/verify-2fa';
+        //   } else {
+        //     window.location.href =
+        //       res.data.role === 'admin'
+        //         ? '/dashboard/admin/overview'
+        //         : '/dashboard/agent/overview';
+        //   }
+        //   return res?.message;
+        // },
         error: (err) => err?.data?.message,
       },
     );
