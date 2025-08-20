@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client';
 
-export const socket: Socket = io('http://localhost:8080', {
+export const socket: Socket = io('https://courier-api.devmun.xyz', {
   withCredentials: true,
 });
