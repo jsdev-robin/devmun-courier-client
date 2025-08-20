@@ -34,12 +34,12 @@ export default async function middleware(req: NextRequest) {
   const ispathPublicRoute = route.path.public.includes(path);
 
   // Decrypt the path session
-  const cookie = (await cookies()).get('__xa92be3')?.value;
+  const cookie = (await cookies()).get('xa92be3')?.value;
   const session = await utils.decrypt(cookie, process.env.REFRESH_TOKEN);
 
   // Handle path routes
   if (isProtectedRoute && !session) {
-    await utils.deleteSession('__xa91fe7');
+    await utils.deleteSession('xa91fe7');
     return NextResponse.redirect(new URL('/sign-in', req.nextUrl));
   }
 
