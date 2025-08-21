@@ -69,7 +69,10 @@ const CustomerBookParcel = () => {
         .then((res) => res),
       {
         loading: 'Booking a parcel...',
-        success: (res) => res?.message,
+        success: (res) => {
+          form.reset();
+          return res?.message;
+        },
         error: (err) => err?.data?.message,
       },
     );
