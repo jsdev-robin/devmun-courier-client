@@ -34,6 +34,86 @@ const CustomerAgentTrackingMap = () => {
   const popupRef = useRef<mapboxgl.Popup | null>(null);
   const dummyCustomerId = 'CUSTOMER001';
 
+  // Initialize map only once
+  useEffect(() => {
+    if (!mapContainerRef.current) return;
+    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_API_KEY;
+
+    mapRef.current = new mapboxgl.Map({
+      container: mapContainerRef.current,
+      style: 'mapbox://styles/mapbox/streets-v11',
+      center: [0, 20],
+      zoom: 1.5,
+      projection: 'mercator',
+    });
+
+    const map = mapRef.current;
+
+    const popup = new mapboxgl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+      offset: 25,
+    });
+    popupRef.current = popup;
+
+    const pulsingDot = createPulsingDot(map);
+    map.on('load', () => {
+      map.addImage('pulsing-dot', pulsingDot, { pixelRatio: 2 });
+
+      map.addSource('dot-point', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: [],
+        },
+      });
+
+      map.addLayer({
+        id: 'points',
+        type: 'symbol',
+        source: 'dot-point',
+        layout: {
+          'icon-image': 'pulsing-dot',
+          'icon-size': 1,
+        },
+      });
+
+      map.on('mouseenter', 'points', (e) => {
+        if (e.features && e.features.length > 0) {
+          const feature = e.features[0];
+          const geometry = feature.geometry as PointGeometry;
+          const coordinates = geometry.coordinates.slice() as [number, number];
+          const properties = feature.properties || {};
+
+          popup
+            .setLngLat(coordinates)
+            .setHTML(
+              `<div class="p-2">
+                <h3 class="font-bold text-sm">${properties.name}</h3>
+                <p class="text-xs"><strong>Status:</strong> ${properties.status}</p>
+                <p class="text-xs"><strong>ETA:</strong> ${properties.eta}</p>
+                <p class="text-xs"><strong>Vehicle:</strong> ${properties.vehicle}</p>
+                <p class="text-xs"><strong>Speed:</strong> ${properties.speed}</p>
+              </div>`,
+            )
+            .addTo(map);
+
+          map.getCanvas().style.cursor = 'pointer';
+        }
+      });
+
+      map.on('mouseleave', 'points', () => {
+        popup.remove();
+        map.getCanvas().style.cursor = '';
+      });
+    });
+
+    return () => {
+      map.remove();
+    };
+  }, []);
+
+  // Socket listener
   useEffect(() => {
     socket.emit('joinCustomerRoom', dummyCustomerId);
 
@@ -41,7 +121,6 @@ const CustomerAgentTrackingMap = () => {
       'locationUpdate',
       (data: { lat: number; lng: number; speed: number }) => {
         setLocation({ lat: data.lat, lng: data.lng });
-
         setAgentInfo((prev) => ({
           ...prev,
           speed: `${data.speed} km/h`,
@@ -54,123 +133,34 @@ const CustomerAgentTrackingMap = () => {
     };
   }, []);
 
+  // Update map source data when location changes
   useEffect(() => {
-    if (!mapContainerRef.current) return;
-    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_API_KEY;
-    if (!mapRef.current) {
-      mapRef.current = new mapboxgl.Map({
-        container: mapContainerRef.current,
-        style: 'mapbox://styles/mapbox/streets-v11',
-        center: [0, 20],
-        zoom: 1.5,
-        projection: 'mercator',
-      });
-    }
+    if (!mapRef.current || !location) return;
 
     const map = mapRef.current;
+    const source = map.getSource('dot-point') as mapboxgl.GeoJSONSource;
+    if (!source) return;
 
-    const popup = new mapboxgl.Popup({
-      closeButton: false,
-      closeOnClick: false,
-      offset: 25,
+    source.setData({
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [location.lng, location.lat],
+          },
+          properties: agentInfo,
+        },
+      ],
     });
 
-    popupRef.current = popup;
-
-    if (location) {
-      map.on('load', () => {
-        const pulsingDot = createPulsingDot(map);
-
-        if (map.getSource('dot-point')) {
-          map.removeLayer('points');
-          map.removeSource('dot-point');
-        }
-
-        map.addImage('pulsing-dot', pulsingDot, {
-          pixelRatio: 2,
-        });
-
-        map.addSource('dot-point', {
-          type: 'geojson',
-          data: {
-            type: 'FeatureCollection',
-            features: [
-              {
-                type: 'Feature',
-                geometry: {
-                  type: 'Point',
-                  coordinates: [location.lng, location.lat],
-                },
-                properties: {
-                  name: agentInfo.name,
-                  status: agentInfo.status,
-                  eta: agentInfo.eta,
-                  vehicle: agentInfo.vehicle,
-                  speed: agentInfo.speed,
-                },
-              },
-            ],
-          },
-        });
-
-        map.addLayer({
-          id: 'points',
-          type: 'symbol',
-          source: 'dot-point',
-          layout: {
-            'icon-image': 'pulsing-dot',
-            'icon-size': 1,
-          },
-        });
-
-        map.on('mouseenter', 'points', (e) => {
-          if (e.features && e.features.length > 0) {
-            const feature = e.features[0];
-            const geometry = feature.geometry as PointGeometry;
-            const coordinates = geometry.coordinates.slice() as [
-              number,
-              number,
-            ];
-            const properties = feature.properties || {};
-
-            popup
-              .setLngLat(coordinates)
-              .setHTML(
-                `
-                <div class="p-2">
-                  <h3 class="font-bold text-sm">${properties.name}</h3>
-                  <p class="text-xs"><strong>Status:</strong> ${properties.status}</p>
-                  <p class="text-xs"><strong>ETA:</strong> ${properties.eta}</p>
-                  <p class="text-xs"><strong>Vehicle:</strong> ${properties.vehicle}</p>
-                  <p class="text-xs"><strong>Speed:</strong> ${properties.speed}</p>
-                </div>
-              `,
-              )
-              .addTo(map);
-
-            map.getCanvas().style.cursor = 'pointer';
-          }
-        });
-
-        map.on('mouseleave', 'points', () => {
-          popup.remove();
-          map.getCanvas().style.cursor = '';
-        });
-      });
-
-      // map.flyTo({
-      //   center: [location.lng, location.lat],
-      //   zoom: 12,
-      //   speed: 1.2,
-      // });
-    }
-
-    return () => {
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
-    };
+    // Optional: smoothly move camera
+    map.flyTo({
+      center: [location.lng, location.lat],
+      zoom: 12,
+      speed: 1.2,
+    });
   }, [location, agentInfo]);
 
   return (
@@ -181,8 +171,7 @@ const CustomerAgentTrackingMap = () => {
             <CardTitle>Real-Time Agent Tracking</CardTitle>
             <CardDescription>
               View live agent locations worldwide with interactive pulsing
-              markers. Monitor delivery activity across different regions in
-              real time. Hover over markers to see agent information.
+              markers. Hover over markers to see agent info.
             </CardDescription>
           </CardHeader>
           <CardContent>
