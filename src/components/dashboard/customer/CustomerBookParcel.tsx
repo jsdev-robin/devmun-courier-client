@@ -18,7 +18,7 @@ import { Input } from '../../ui/input';
 import GetLocation from '../../features/GetLocation';
 import SelectInput from '../../ui/SelectInput';
 import { Button } from '../../ui/button';
-import { useCustomerBookParcelMutation } from '../../../lib/features/services/parcel/parcelApi';
+import { useCreateCustomerBookParcelMutation } from '../../../lib/features/services/parcel/parcelApi';
 import { Loader } from 'lucide-react';
 import { toast } from 'sonner';
 import useUser from '../../../guard/useUser';
@@ -44,7 +44,8 @@ const parcelBookingSchema = z.object({
 });
 
 const CustomerBookParcel = () => {
-  const [customerBookParcel, { isLoading }] = useCustomerBookParcelMutation();
+  const [createCustomerBookParcel, { isLoading }] =
+    useCreateCustomerBookParcelMutation();
   const user = useUser();
   const [pickupLocation, setPickupLocation] = useState<{
     lat: number;
@@ -68,7 +69,7 @@ const CustomerBookParcel = () => {
 
   async function onSubmit(data: z.infer<typeof parcelBookingSchema>) {
     await toast.promise(
-      customerBookParcel(data)
+      createCustomerBookParcel(data)
         .unwrap()
         .then((res) => res),
       {

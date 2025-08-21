@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Heading from '../../ui/heading';
 import { Card } from '../../ui/card';
@@ -9,9 +11,11 @@ import {
   TableHead,
   TableCell,
 } from '../../ui/table';
-import { dummyParcel } from './data/dummyParcel';
+import { useGetCustomerParcelsQuery } from '../../../lib/features/services/parcel/parcelApi';
 
 const CustomerParcels = () => {
+  const { data } = useGetCustomerParcelsQuery({});
+
   return (
     <section>
       <div className="container">
@@ -35,18 +39,14 @@ const CustomerParcels = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {dummyParcel.map((parcel) => (
-                  <TableRow key={parcel.trackingId}>
+                {data?.data?.map((parcel, i) => (
+                  <TableRow key={i}>
                     <TableCell>{parcel.trackingId}</TableCell>
-                    <TableCell>{parcel.from}</TableCell>
-                    <TableCell>{parcel.to}</TableCell>
-                    <TableCell>{parcel.bookingDate}</TableCell>
+                    <TableCell>{parcel.pickupAddress}</TableCell>
+                    <TableCell>{parcel.deliveryAddress}</TableCell>
+                    <TableCell>{parcel.updatedAt.toLocaleString()}</TableCell>
                     <TableCell>{parcel.status}</TableCell>
-                    <TableCell>
-                      <button className="text-blue-500 hover:underline">
-                        {parcel.action}
-                      </button>
-                    </TableCell>
+                    <TableCell>view</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
