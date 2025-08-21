@@ -1,5 +1,5 @@
 import { JWTPayload, SignJWT, jwtVerify } from 'jose';
-import { cookies, headers } from 'next/headers';
+import { cookies } from 'next/headers';
 import 'server-only';
 
 class SessionManager {
@@ -50,43 +50,6 @@ class SessionManager {
   deleteSession = async (name: string) => {
     const cookieStore = await cookies();
     cookieStore.delete(name);
-  };
-
-  getIP = async () => {
-    return (
-      (await headers()).get('x-forwarded-for')?.split(',')[0]?.trim() ??
-      'Unknown'
-    );
-  };
-
-  getDevice = async () => {
-    const ua = (await headers()).get('user-agent') || '';
-
-    if (/mobile/i.test(ua)) return 'Mobile';
-    if (/tablet/i.test(ua)) return 'Tablet';
-    if (/iPad|PlayBook/.test(ua)) return 'Tablet';
-    if (/Android/.test(ua) && !/mobile/i.test(ua)) return 'Tablet';
-    if (/Macintosh|Windows|Linux/.test(ua)) return 'Desktop';
-
-    return 'Unknown';
-  };
-
-  getBrowser = async () => {
-    const ua = (await headers()).get('user-agent') || '';
-
-    if (ua.includes('Firefox/')) return 'Firefox';
-    if (ua.includes('Edg/') || ua.includes('Edge/')) return 'Edge';
-    if (ua.includes('Chrome/') && !ua.includes('Edg/') && !ua.includes('OPR/'))
-      return 'Chrome';
-    if (
-      ua.includes('Safari/') &&
-      !ua.includes('Chrome/') &&
-      !ua.includes('Chromium/')
-    )
-      return 'Safari';
-    if (ua.includes('OPR/') || ua.includes('Opera/')) return 'Opera';
-
-    return 'Unknown';
   };
 }
 
