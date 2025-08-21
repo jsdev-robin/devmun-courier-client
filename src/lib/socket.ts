@@ -6,5 +6,6 @@ export const socket: Socket = io(
     : 'http://localhost:8080',
   {
     withCredentials: true,
+    autoConnect: true,
   },
 );
