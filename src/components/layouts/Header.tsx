@@ -50,30 +50,28 @@ const Header = ({
             <Package2 className="mr-3" />
             <span>QuickShip</span>
           </Link>
-          {!role && (
-            <nav className="mb-4 md:mb-0">
-              <ul className="flex flex-wrap justify-center space-x-5">
-                {[
-                  { name: 'Home', href: '#' },
-                  { name: 'Services', href: '#' },
-                  { name: 'Pricing', href: '#' },
-                  { name: 'About Us', href: '#' },
-                  { name: 'Contact', href: '#' },
-                ].map((link) => (
-                  <li key={link.name}>
-                    <Link
-                      href={link.href}
-                      className="text-gray-700 hover:text-primary font-medium py-2 px-3"
-                    >
-                      {link.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          )}
+          <nav className="mb-4 md:mb-0">
+            <ul className="flex flex-wrap justify-center space-x-5">
+              {[
+                { name: 'Home', href: '#' },
+                { name: 'Services', href: '#' },
+                { name: 'Pricing', href: '#' },
+                { name: 'About Us', href: '#' },
+                { name: 'Contact', href: '#' },
+              ].map((link) => (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    className="text-gray-700 hover:text-primary font-medium py-2 px-3"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
-          {role ? (
+          {role?.agent || role?.customer ? (
             <DropdownMenu>
               <DropdownMenuTrigger>
                 <Avatar>
