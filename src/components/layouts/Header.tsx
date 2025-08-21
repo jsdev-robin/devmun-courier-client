@@ -20,7 +20,7 @@ import { toast } from 'sonner';
 const Header = ({
   role,
 }: {
-  role: {
+  role?: {
     agent: unknown;
     customer: unknown;
   };
