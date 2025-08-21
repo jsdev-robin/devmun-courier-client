@@ -1,5 +1,5 @@
 import React from 'react';
-import CustomerAgentTrackingMap from '../../../../components/dashboard/customer/CustomerAgentTrackingMap';
+// import CustomerAgentTrackingMap from '../../../../components/dashboard/customer/CustomerAgentTrackingMap';
 import CustomerBookParcel from '../../../../components/dashboard/customer/CustomerBookParcel';
 import CustomerTrackParcel from '../../../../components/dashboard/customer/CustomerTrackParcel';
 import CustomerParcels from '../../../../components/dashboard/customer/CustomerParcels';
@@ -7,7 +7,7 @@ import CustomerParcels from '../../../../components/dashboard/customer/CustomerP
 const page = () => {
   return (
     <>
-      <CustomerAgentTrackingMap />
+      {/* <CustomerAgentTrackingMap /> */}
       <CustomerBookParcel />
       <CustomerTrackParcel />
       <CustomerParcels />
