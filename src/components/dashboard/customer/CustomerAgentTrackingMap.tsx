@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { socket } from '../../../lib/socket';
@@ -29,25 +29,25 @@ const CustomerAgentTrackingMap = () => {
     vehicle: 'Motorcycle',
     speed: '0 km/h',
   });
+
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const popupRef = useRef<mapboxgl.Popup | null>(null);
-  const dummyCustomerId = 'CUSTOMER001';
 
-  // Initialize map only once
+  const dummyCustomerId = 'CUSTOMER001';
+  const defaultCoords = useMemo<[number, number]>(() => [0, 20], []);
+
   useEffect(() => {
     if (!mapContainerRef.current) return;
     mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_API_KEY;
 
-    mapRef.current = new mapboxgl.Map({
+    const map = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: 'mapbox://styles/mapbox/streets-v11',
-      center: [0, 20],
+      center: defaultCoords,
       zoom: 1.5,
       projection: 'mercator',
     });
-
-    const map = mapRef.current;
 
     const popup = new mapboxgl.Popup({
       closeButton: false,
@@ -64,7 +64,19 @@ const CustomerAgentTrackingMap = () => {
         type: 'geojson',
         data: {
           type: 'FeatureCollection',
-          features: [],
+          features: [
+            {
+              type: 'Feature',
+              geometry: { type: 'Point', coordinates: defaultCoords },
+              properties: {
+                name: 'Waiting...',
+                status: 'Offline',
+                eta: '-',
+                vehicle: '-',
+                speed: '0 km/h',
+              },
+            },
+          ],
         },
       });
 
@@ -79,27 +91,26 @@ const CustomerAgentTrackingMap = () => {
       });
 
       map.on('mouseenter', 'points', (e) => {
-        if (e.features && e.features.length > 0) {
-          const feature = e.features[0];
-          const geometry = feature.geometry as PointGeometry;
-          const coordinates = geometry.coordinates.slice() as [number, number];
-          const properties = feature.properties || {};
+        if (!e.features || e.features.length === 0) return;
+        const feature = e.features[0];
+        const geometry = feature.geometry as PointGeometry;
+        const coordinates = geometry.coordinates.slice() as [number, number];
+        const properties = feature.properties || {};
 
-          popup
-            .setLngLat(coordinates)
-            .setHTML(
-              `<div class="p-2">
-                <h3 class="font-bold text-sm">${properties.name}</h3>
-                <p class="text-xs"><strong>Status:</strong> ${properties.status}</p>
-                <p class="text-xs"><strong>ETA:</strong> ${properties.eta}</p>
-                <p class="text-xs"><strong>Vehicle:</strong> ${properties.vehicle}</p>
-                <p class="text-xs"><strong>Speed:</strong> ${properties.speed}</p>
-              </div>`,
-            )
-            .addTo(map);
+        popup
+          .setLngLat(coordinates)
+          .setHTML(
+            `<div class="p-2">
+              <h3 class="font-bold text-sm">${properties.name}</h3>
+              <p class="text-xs"><strong>Status:</strong> ${properties.status}</p>
+              <p class="text-xs"><strong>ETA:</strong> ${properties.eta}</p>
+              <p class="text-xs"><strong>Vehicle:</strong> ${properties.vehicle}</p>
+              <p class="text-xs"><strong>Speed:</strong> ${properties.speed}</p>
+            </div>`,
+          )
+          .addTo(map);
 
-          map.getCanvas().style.cursor = 'pointer';
-        }
+        map.getCanvas().style.cursor = 'pointer';
       });
 
       map.on('mouseleave', 'points', () => {
@@ -108,12 +119,11 @@ const CustomerAgentTrackingMap = () => {
       });
     });
 
-    return () => {
-      map.remove();
-    };
-  }, []);
+    mapRef.current = map;
 
-  // Socket listener
+    return () => map.remove();
+  }, [defaultCoords]);
+
   useEffect(() => {
     socket.emit('joinCustomerRoom', dummyCustomerId);
 
@@ -121,10 +131,13 @@ const CustomerAgentTrackingMap = () => {
       'locationUpdate',
       (data: { lat: number; lng: number; speed: number }) => {
         setLocation({ lat: data.lat, lng: data.lng });
-        setAgentInfo((prev) => ({
-          ...prev,
+        setAgentInfo({
+          name: 'John Doe',
+          status: 'In Transit',
+          eta: '25 minutes',
+          vehicle: 'Motorcycle',
           speed: `${data.speed} km/h`,
-        }));
+        });
       },
     );
 
@@ -133,35 +146,41 @@ const CustomerAgentTrackingMap = () => {
     };
   }, []);
 
-  // Update map source data when location changes
   useEffect(() => {
-    if (!mapRef.current || !location) return;
+    if (!mapRef.current) return;
 
     const map = mapRef.current;
     const source = map.getSource('dot-point') as mapboxgl.GeoJSONSource;
     if (!source) return;
+
+    const coords: [number, number] = location
+      ? [location.lng, location.lat]
+      : defaultCoords;
+    const properties = location
+      ? agentInfo
+      : {
+          name: 'Waiting...',
+          status: 'Offline',
+          eta: '-',
+          vehicle: '-',
+          speed: '0 km/h',
+        };
 
     source.setData({
       type: 'FeatureCollection',
       features: [
         {
           type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: [location.lng, location.lat],
-          },
-          properties: agentInfo,
+          geometry: { type: 'Point', coordinates: coords },
+          properties,
         },
       ],
     });
 
-    // Optional: smoothly move camera
-    map.flyTo({
-      center: [location.lng, location.lat],
-      zoom: 12,
-      speed: 1.2,
-    });
-  }, [location, agentInfo]);
+    if (location) {
+      map.flyTo({ center: coords, zoom: 12, speed: 1.2 });
+    }
+  }, [location, agentInfo, defaultCoords]);
 
   return (
     <section>
@@ -171,7 +190,8 @@ const CustomerAgentTrackingMap = () => {
             <CardTitle>Real-Time Agent Tracking</CardTitle>
             <CardDescription>
               View live agent locations worldwide with interactive pulsing
-              markers. Hover over markers to see agent info.
+              markers. The marker remains visible even if no updates are
+              received.
             </CardDescription>
           </CardHeader>
           <CardContent>
