@@ -56,7 +56,9 @@ const SignIn = () => {
                 ? '/dashboard/admin/overview'
                 : res.data.role === 'agent'
                 ? '/dashboard/agent/overview'
-                : '/your/dashboard';
+                : res.data.role === 'customer'
+                ? '/dashboard/customer/overview'
+                : '/sign-in';
           }
           return res?.message;
         },

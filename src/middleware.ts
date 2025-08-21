@@ -7,7 +7,7 @@ const route = {
     protected: {
       admin: ['/dashboard/admin'],
       agent: ['/dashboard/agent'],
-      customer: ['/your/dashboard'],
+      customer: ['/dashboard/customer'],
     },
     public: [
       '/sign-in',
@@ -24,72 +24,80 @@ export default async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
   const utils = new SessionManager();
 
-  // Check for all protected routes
+  // Check for path routes
   const isProtectedRoute =
-    route.path.protected.admin.some((p) => path.startsWith(p)) ||
-    route.path.protected.agent.some((p) => path.startsWith(p)) ||
-    route.path.protected.customer.some((p) => path.startsWith(p));
+    route.path.protected.admin.some((protectedPath) =>
+      path.startsWith(protectedPath),
+    ) ||
+    route.path.protected.agent.some((protectedPath) =>
+      path.startsWith(protectedPath),
+    ) ||
+    route.path.protected.customer.some((protectedPath) =>
+      path.startsWith(protectedPath),
+    );
+  const ispathPublicRoute = route.path.public.includes(path);
 
-  const isPublicRoute = route.path.public.includes(path);
+  // Decrypt the path session
+  const cookie = (await cookies()).get('xa92be3')?.value;
+  const session = await utils.decrypt(cookie, process.env.REFRESH_TOKEN);
 
-  // Get both cookies (admin/agent + customer)
-  const cookieStore = await cookies();
-  const adminAgentCookie = cookieStore.get('xa92be3')?.value;
-  const customerCookie = cookieStore.get('xb81cd2')?.value;
-
-  let session = null;
-
-  // Try admin/agent cookie first
-  if (adminAgentCookie) {
-    session = await utils.decrypt(adminAgentCookie, process.env.REFRESH_TOKEN!);
-  }
-
-  // If no admin/agent session, try customer cookie
-  if (!session && customerCookie) {
-    session = await utils.decrypt(customerCookie, process.env.REFRESH_TOKEN!);
-  }
-
-  // No session but protected route → redirect to sign-in
-  if (!session && isProtectedRoute) {
-    await utils.deleteSession('xa91fe7'); // admin/agent
-    await utils.deleteSession('xb82ef9'); // customer
+  // Handle path routes
+  if (isProtectedRoute && !session) {
+    await utils.deleteSession('xa91fe7');
     return NextResponse.redirect(new URL('/sign-in', req.nextUrl));
   }
 
-  // Has session but on public route → redirect to dashboard
-  if (session && isPublicRoute) {
-    let redirectPath = '/';
+  if (ispathPublicRoute && session) {
+    let redirectPath = '/dashboard/customer/overview';
 
-    if (session.role === 'admin') redirectPath = '/dashboard/admin/overview';
-    else if (session.role === 'agent')
+    if (session.role === 'admin') {
+      redirectPath = '/dashboard/admin/overview';
+    } else if (session.role === 'agent') {
       redirectPath = '/dashboard/agent/overview';
-    else if (session.role === 'customer') redirectPath = '/your/dashboard';
+    }
 
-    return NextResponse.redirect(new URL(redirectPath, req.nextUrl));
+    if (!req.nextUrl.pathname.startsWith(redirectPath)) {
+      return NextResponse.redirect(new URL(redirectPath, req.nextUrl));
+    }
   }
 
-  // Has session but wrong role access → redirect to correct dashboard
+  // Check role-based access for path protected routes
   if (session) {
-    // Admin area - only for admin
-    if (path.startsWith('/dashboard/admin') && session.role !== 'admin') {
+    // Admin route access check
+    if (
+      route.path.protected.admin.some((protectedPath) =>
+        path.startsWith(protectedPath),
+      ) &&
+      session.role !== 'admin'
+    ) {
       const redirectPath =
         session.role === 'agent'
           ? '/dashboard/agent/overview'
-          : '/your/dashboard';
+          : '/dashboard/customer/overview';
       return NextResponse.redirect(new URL(redirectPath, req.nextUrl));
     }
 
-    // Agent area - only for agent
-    if (path.startsWith('/dashboard/agent') && session.role !== 'agent') {
+    // Agent route access check
+    if (
+      route.path.protected.agent.some((protectedPath) =>
+        path.startsWith(protectedPath),
+      ) &&
+      session.role !== 'agent'
+    ) {
       const redirectPath =
         session.role === 'admin'
           ? '/dashboard/admin/overview'
-          : '/your/dashboard';
+          : '/dashboard/customer/overview';
       return NextResponse.redirect(new URL(redirectPath, req.nextUrl));
     }
 
-    // Customer area - only for customer
-    if (path.startsWith('/your/dashboard') && session.role !== 'customer') {
+    // Customer route access check
+    if (
+      route.path.protected.customer.some((protectedPath) =>
+        path.startsWith(protectedPath),
+      ) &&
+      session.role !== 'customer'
+    ) {
       const redirectPath =
         session.role === 'admin'
           ? '/dashboard/admin/overview'
@@ -101,6 +109,7 @@ export default async function middleware(req: NextRequest) {
   return NextResponse.next();
 }
 
+// Routes Middleware should not run on
 export const config = {
   matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)'],
 };
