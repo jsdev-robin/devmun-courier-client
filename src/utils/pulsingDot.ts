@@ -28,29 +28,7 @@ export const createPulsingDot = (
 
     render: function () {
       if (!isBroadcasting) {
-        if (!this.context) return false;
-
-        this.context.clearRect(0, 0, this.width, this.height);
-
-        this.context.beginPath();
-        this.context.arc(
-          this.width / 2,
-          this.height / 2,
-          size / 4,
-          0,
-          Math.PI * 2,
-        );
-        this.context.fillStyle = 'rgba(100, 100, 100, 1)';
-        this.context.fill();
-
-        this.data = this.context.getImageData(
-          0,
-          0,
-          this.width,
-          this.height,
-        ).data;
-        map.triggerRepaint();
-        return true;
+        return false;
       }
 
       const duration = 1000;
