@@ -158,11 +158,11 @@ const CustomerAgentTrackingMap = () => {
         });
       });
 
-      map.flyTo({
-        center: [location.lng, location.lat],
-        zoom: 12,
-        speed: 1.2,
-      });
+      // map.flyTo({
+      //   center: [location.lng, location.lat],
+      //   zoom: 12,
+      //   speed: 1.2,
+      // });
     }
 
     return () => {
