@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -82,4 +82,4 @@ const GetLocation: React.FC<GetLocationProps> = ({ onChange, className }) => {
   );
 };
 
-export default GetLocation;
+export default memo(GetLocation);

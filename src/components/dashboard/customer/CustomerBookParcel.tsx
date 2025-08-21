@@ -21,10 +21,10 @@ import { Button } from '../../ui/button';
 import { useCustomerBookParcelMutation } from '../../../lib/features/services/parcel/parcelApi';
 import { Loader } from 'lucide-react';
 import { toast } from 'sonner';
+import useUser from '../../../guard/useUser';
+import { Label } from '../../ui/label';
 
 const parcelBookingSchema = z.object({
-  senderName: z.string().min(1, { message: 'Sender name is required' }),
-  senderPhone: z.string().min(1, { message: 'Sender contact is required' }),
   receiverName: z.string().min(1, { message: 'Receiver name is required' }),
   receiverPhone: z.string().min(1, { message: 'Receiver contact is required' }),
   pickupAddress: z.string().min(1, { message: 'Pickup address is required' }),
@@ -45,13 +45,12 @@ const parcelBookingSchema = z.object({
 
 const CustomerBookParcel = () => {
   const [customerBookParcel, { isLoading }] = useCustomerBookParcelMutation();
+  const user = useUser();
 
   const form = useForm<z.infer<typeof parcelBookingSchema>>({
     resolver: zodResolver(parcelBookingSchema),
     mode: 'onChange',
     defaultValues: {
-      senderName: '',
-      senderPhone: '',
       receiverName: '',
       receiverPhone: '',
       pickupAddress: '',
@@ -60,7 +59,6 @@ const CustomerBookParcel = () => {
       parcelSize: '',
       paymentMethod: '',
       codAmount: '',
-      pickupLocation: undefined,
     },
   });
 
@@ -94,32 +92,14 @@ const CustomerBookParcel = () => {
                   <div className="xl:col-span-3">
                     <Card className="p-6">
                       <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2">
-                        <FormField
-                          control={form.control}
-                          name="senderName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Sender Name</FormLabel>
-                              <FormControl>
-                                <Input {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="senderPhone"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Sender Contact</FormLabel>
-                              <FormControl>
-                                <Input type="number" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                        <div className="grid gap-2">
+                          <Label>Sender Name</Label>
+                          <Input value={user?.displayName} readOnly />
+                        </div>
+                        <div className="grid gap-2">
+                          <Label>Sender Contact</Label>
+                          <Input value={'Manikganj-1800'} readOnly />
+                        </div>
                         <FormField
                           control={form.control}
                           name="receiverName"

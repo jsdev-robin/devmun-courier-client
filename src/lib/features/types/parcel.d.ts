@@ -1,6 +1,4 @@
 export interface Parcel {
-  senderName: string;
-  senderPhone: string;
   receiverName: string;
   receiverPhone: string;
   pickupAddress: string;
