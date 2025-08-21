@@ -54,7 +54,9 @@ const SignIn = () => {
             window.location.href =
               res.data.role === 'admin'
                 ? '/dashboard/admin/overview'
-                : '/dashboard/agent/overview';
+                : res.data.role === 'agent'
+                ? '/dashboard/agent/overview'
+                : '/your/dashboard';
           }
           return res?.message;
         },

@@ -13,3 +13,47 @@
     display: none;
   }
 }
+
+.status {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.status-pending {
+  background-color: #ffeaa7;
+  color: #d35400;
+}
+
+.status-picked {
+  background-color: #81ecec;
+  color: #00b894;
+}
+
+.status-transit {
+  background-color: #74b9ff;
+  color: #0984e3;
+}
+
+.status-delivered {
+  background-color: #55efc4;
+  color: #00b894;
+}
+
+.status-failed {
+  background-color: #fab1a0;
+  color: #d63031;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background-color: #3498db;
+}

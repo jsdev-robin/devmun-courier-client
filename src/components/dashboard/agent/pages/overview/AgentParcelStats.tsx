@@ -12,11 +12,15 @@ const AgentParcelStats = () => {
   useEffect(() => {
     if ('geolocation' in navigator) {
       const watchId = navigator.geolocation.watchPosition(
-        ({ coords }) => {
+        (position) => {
+          const { latitude, longitude, speed } = position.coords;
+          const speedKmh = speed !== null ? speed * 3.6 : 0;
+
           socket.emit('agentLocation', {
             customerId: dummyCustomerId,
-            lat: coords.latitude,
-            lng: coords.longitude,
+            lat: latitude,
+            lng: longitude,
+            speed: Math.round(speedKmh),
           });
         },
         (err) => console.error(err),
