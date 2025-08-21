@@ -35,6 +35,7 @@ const CustomerAgentTrackingMap = () => {
   const popupRef = useRef<mapboxgl.Popup | null>(null);
   const dummyCustomerId = 'CUSTOMER001';
 
+  // Initialize map only once
   useEffect(() => {
     if (!mapContainerRef.current) return;
     mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_API_KEY;
@@ -113,6 +114,7 @@ const CustomerAgentTrackingMap = () => {
     };
   }, [isBroadcasting]);
 
+  // Socket listener
   useEffect(() => {
     socket.emit('joinCustomerRoom', dummyCustomerId);
 
@@ -136,6 +138,7 @@ const CustomerAgentTrackingMap = () => {
     };
   }, []);
 
+  // Update map source data when location changes
   useEffect(() => {
     if (!mapRef.current || !location) return;
 
@@ -157,6 +160,7 @@ const CustomerAgentTrackingMap = () => {
       ],
     });
 
+    // smoothly move camera
     map.flyTo({
       center: [location.lng, location.lat],
       zoom: 12,
