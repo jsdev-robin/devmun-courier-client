@@ -5,34 +5,37 @@ import { Card, CardAction, CardHeader, CardTitle } from '../../../../ui/card';
 import Heading from '../../../../ui/heading';
 import { AlertTriangle, CircleCheck, Clock, Package2 } from 'lucide-react';
 import { socket } from '../../../../../lib/socket';
+import useUser from '../../../../../guard/useUser';
 
 const AgentParcelStats = () => {
-  const dummyCustomerId = 'CUSTOMER001';
+  const user = useUser();
 
   useEffect(() => {
-    if ('geolocation' in navigator) {
-      const watchId = navigator.geolocation.watchPosition(
-        (position) => {
-          const { latitude, longitude, speed } = position.coords;
-          const speedKmh = speed !== null ? speed * 3.6 : 0;
+    if (user?._id) {
+      if ('geolocation' in navigator) {
+        const watchId = navigator.geolocation.watchPosition(
+          (position) => {
+            const { latitude, longitude, speed } = position.coords;
+            const speedKmh = speed !== null ? speed * 3.6 : 0;
 
-          socket.emit('agentLocation', {
-            customerId: dummyCustomerId,
-            lat: latitude,
-            lng: longitude,
-            speed: Math.round(speedKmh),
-          });
-        },
-        (err) => console.error(err),
-        { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 },
-      );
+            socket.emit('agentLocation', {
+              customerId: user?._id,
+              lat: latitude,
+              lng: longitude,
+              speed: Math.round(speedKmh),
+            });
+          },
+          (err) => console.error(err),
+          { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 },
+        );
 
-      return () => {
-        navigator.geolocation.clearWatch(watchId);
-        socket.emit('agentDisconnect', dummyCustomerId);
-      };
+        return () => {
+          navigator.geolocation.clearWatch(watchId);
+          socket.emit('agentDisconnect', user?._id);
+        };
+      }
     }
-  }, []);
+  }, [user?._id]);
 
   return (
     <section>

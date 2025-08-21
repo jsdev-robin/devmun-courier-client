@@ -33,7 +33,7 @@ const CustomerAgentTrackingMap = () => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const popupRef = useRef<mapboxgl.Popup | null>(null);
-  const dummyCustomerId = 'CUSTOMER001';
+  const user = '68a6c4e495574abc715487ef';
 
   // Initialize map only once
   useEffect(() => {
@@ -116,7 +116,7 @@ const CustomerAgentTrackingMap = () => {
 
   // Socket listener
   useEffect(() => {
-    socket.emit('joinCustomerRoom', dummyCustomerId);
+    socket.emit('joinCustomerRoom', user ?? '');
 
     socket.on(
       'locationUpdate',
