@@ -1,7 +1,16 @@
 import React from 'react';
+import AdminOverviewState from '../../../../components/dashboard/admin/pages/overview/AdminOverviewState';
+import AdminOverviewAnalytics from '../../../../components/dashboard/admin/pages/overview/AdminOverviewAnalytics';
+import AdminDataTable from '../../../../components/dashboard/admin/pages/overview/AdminDataTable';
 
 const page = () => {
-  return <div>page</div>;
+  return (
+    <>
+      <AdminOverviewState />
+      <AdminOverviewAnalytics />
+      <AdminDataTable />
+    </>
+  );
 };
 
 export default page;

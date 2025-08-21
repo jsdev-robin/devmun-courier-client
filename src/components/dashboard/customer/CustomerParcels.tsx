@@ -44,7 +44,7 @@ const CustomerParcels = () => {
                     <TableCell>{parcel.trackingId}</TableCell>
                     <TableCell>{parcel.pickupAddress}</TableCell>
                     <TableCell>{parcel.deliveryAddress}</TableCell>
-                    <TableCell>{parcel.updatedAt.toLocaleString()}</TableCell>
+                    <TableCell>{parcel.updatedAt?.toLocaleString()}</TableCell>
                     <TableCell>{parcel.status}</TableCell>
                     <TableCell>view</TableCell>
                   </TableRow>
