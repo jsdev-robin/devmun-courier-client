@@ -10,11 +10,19 @@ import { cn } from '../../lib/utils';
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_API_KEY;
 
 interface GetLocationProps {
-  onChange?: (coords: { lng: number; lat: number }) => void;
   className?: string;
+  setPickupLocation?: React.Dispatch<
+    React.SetStateAction<{
+      lat: number;
+      lng: number;
+    } | null>
+  >;
 }
 
-const GetLocation: React.FC<GetLocationProps> = ({ onChange, className }) => {
+const GetLocation: React.FC<GetLocationProps> = ({
+  className,
+  setPickupLocation,
+}) => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markerRef = useRef<mapboxgl.Marker | null>(null);
@@ -40,7 +48,7 @@ const GetLocation: React.FC<GetLocationProps> = ({ onChange, className }) => {
 
     geocoder.on('result', (e) => {
       const [lng, lat] = e.result.geometry.coordinates;
-      onChange?.({ lng, lat });
+      setPickupLocation?.({ lng, lat });
       if (!markerRef.current) {
         markerRef.current = new mapboxgl.Marker()
           .setLngLat([lng, lat])
@@ -54,7 +62,7 @@ const GetLocation: React.FC<GetLocationProps> = ({ onChange, className }) => {
 
     mapRef.current.on('click', (e) => {
       const { lng, lat } = e.lngLat;
-      onChange?.({ lng, lat });
+      setPickupLocation?.({ lng, lat });
 
       if (!markerRef.current) {
         markerRef.current = new mapboxgl.Marker()
@@ -66,7 +74,7 @@ const GetLocation: React.FC<GetLocationProps> = ({ onChange, className }) => {
     });
 
     return () => mapRef.current?.remove();
-  }, [onChange]);
+  }, [setPickupLocation]);
 
   return (
     <div>

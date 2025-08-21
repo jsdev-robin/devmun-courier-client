@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -46,6 +46,10 @@ const parcelBookingSchema = z.object({
 const CustomerBookParcel = () => {
   const [customerBookParcel, { isLoading }] = useCustomerBookParcelMutation();
   const user = useUser();
+  const [pickupLocation, setPickupLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
 
   const form = useForm<z.infer<typeof parcelBookingSchema>>({
     resolver: zodResolver(parcelBookingSchema),
@@ -78,6 +82,11 @@ const CustomerBookParcel = () => {
     );
   }
 
+  useEffect(() => {
+    if (pickupLocation) {
+      form.setValue('pickupLocation', pickupLocation);
+    }
+  }, [pickupLocation, form]);
   return (
     <section>
       <div className="container">
@@ -248,14 +257,7 @@ const CustomerBookParcel = () => {
                     </Card>
                   </div>
                   <div className="xl:col-span-2 h-full">
-                    <GetLocation
-                      onChange={(value) => {
-                        form.setValue('pickupLocation', {
-                          lat: value?.lat,
-                          lng: value?.lng,
-                        });
-                      }}
-                    />
+                    <GetLocation setPickupLocation={setPickupLocation} />
                   </div>
                 </div>
                 <div className="flex justify-center">
