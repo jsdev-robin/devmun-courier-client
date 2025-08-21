@@ -18,6 +18,9 @@ import { Input } from '../../ui/input';
 import GetLocation from '../../features/GetLocation';
 import SelectInput from '../../ui/SelectInput';
 import { Button } from '../../ui/button';
+import { useCustomerBookParcelMutation } from '../../../lib/features/services/parcel/parcelApi';
+import { Loader } from 'lucide-react';
+import { toast } from 'sonner';
 
 const parcelBookingSchema = z.object({
   senderName: z.string().min(1, { message: 'Sender name is required' }),
@@ -41,6 +44,8 @@ const parcelBookingSchema = z.object({
 });
 
 const CustomerBookParcel = () => {
+  const [customerBookParcel, { isLoading }] = useCustomerBookParcelMutation();
+
   const form = useForm<z.infer<typeof parcelBookingSchema>>({
     resolver: zodResolver(parcelBookingSchema),
     mode: 'onChange',
@@ -60,7 +65,16 @@ const CustomerBookParcel = () => {
   });
 
   async function onSubmit(data: z.infer<typeof parcelBookingSchema>) {
-    console.log(data);
+    await toast.promise(
+      customerBookParcel(data)
+        .unwrap()
+        .then((res) => res),
+      {
+        loading: 'Booking a parcel...',
+        success: (res) => res?.message,
+        error: (err) => err?.data?.message,
+      },
+    );
   }
 
   return (
@@ -262,7 +276,10 @@ const CustomerBookParcel = () => {
                   </div>
                 </div>
                 <div className="flex justify-center">
-                  <Button>Schedule Pickup</Button>
+                  <Button disabled={isLoading}>
+                    {isLoading && <Loader className="animate-spin" />}Schedule
+                    Pickup
+                  </Button>
                 </div>
               </div>
             </form>

@@ -49,14 +49,14 @@ export default async function middleware(req: NextRequest) {
     session = await utils.decrypt(customerCookie, process.env.REFRESH_TOKEN!);
   }
 
-  //Case 1: No session but protected route → redirect to sign-in
+  // No session but protected route → redirect to sign-in
   if (!session && isProtectedRoute) {
     await utils.deleteSession('xa91fe7'); // admin/agent
     await utils.deleteSession('xb82ef9'); // customer
     return NextResponse.redirect(new URL('/sign-in', req.nextUrl));
   }
 
-  //Case 2: Has session but on public route → redirect to dashboard
+  // Has session but on public route → redirect to dashboard
   if (session && isPublicRoute) {
     let redirectPath = '/';
 
@@ -68,7 +68,7 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL(redirectPath, req.nextUrl));
   }
 
-  //Case 3: Has session but wrong role access → redirect to correct dashboard
+  // Has session but wrong role access → redirect to correct dashboard
   if (session) {
     // Admin area - only for admin
     if (path.startsWith('/dashboard/admin') && session.role !== 'admin') {

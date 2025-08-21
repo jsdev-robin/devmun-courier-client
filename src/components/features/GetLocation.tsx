@@ -78,12 +78,6 @@ const GetLocation: React.FC<GetLocationProps> = ({ onChange, className }) => {
           borderRadius: '8px',
         }}
       />
-      {/* {coords && (
-        <div>
-          <strong>Selected Location:</strong> <br />
-          Longitude: {coords.lng.toFixed(6)}, Latitude: {coords.lat.toFixed(6)}
-        </div>
-      )} */}
     </div>
   );
 };
