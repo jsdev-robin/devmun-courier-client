@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { LayoutDashboard } from 'lucide-react';
-
 import { NavMain } from './nav-main';
 import { NavUser } from './nav-user';
 import { TeamSwitcher } from './team-switcher';

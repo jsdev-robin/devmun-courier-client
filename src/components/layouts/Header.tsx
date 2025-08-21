@@ -13,9 +13,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { LogOut, Package2 } from 'lucide-react';
-import { useSignoutMutation } from '../../lib/features/services/auth/authApi';
+import {
+  userAuthApi,
+  useSignoutMutation,
+} from '../../lib/features/services/auth/authApi';
 import useUser from '../../guard/useUser';
 import { toast } from 'sonner';
+import { Skeleton } from '../ui/skeleton';
 
 const Header = ({
   role,
@@ -38,6 +42,9 @@ const Header = ({
       error: (err) => err?.data?.message,
     });
   };
+
+  const { isLoading: profileLoading } =
+    userAuthApi.endpoints.getProfile.useQuery();
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -72,29 +79,38 @@ const Header = ({
           </nav>
 
           {role?.agent || role?.customer ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <Avatar>
-                  <AvatarImage
-                    src="https://github.com/shadcn.png"
-                    alt="@shadcn"
-                  />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end">
-                <DropdownMenuLabel>{user?.displayName}</DropdownMenuLabel>
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>Profile</DropdownMenuItem>
-                  <DropdownMenuItem>Settings</DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} disabled={isLoading}>
-                  <LogOut />
-                  Log out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <>
+              {profileLoading ? (
+                <Skeleton className="size-10 rounded-full" />
+              ) : (
+                <DropdownMenu>
+                  <DropdownMenuTrigger>
+                    <Avatar>
+                      <AvatarImage
+                        src="https://github.com/shadcn.png"
+                        alt="@shadcn"
+                      />
+                      <AvatarFallback>CN</AvatarFallback>
+                    </Avatar>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end">
+                    <DropdownMenuLabel>{user?.displayName}</DropdownMenuLabel>
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem>Profile</DropdownMenuItem>
+                      <DropdownMenuItem>Settings</DropdownMenuItem>
+                    </DropdownMenuGroup>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={handleLogout}
+                      disabled={isLoading}
+                    >
+                      <LogOut />
+                      Log out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </>
           ) : (
             <div className="flex space-x-4">
               <Link
