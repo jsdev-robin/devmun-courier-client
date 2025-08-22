@@ -1,19 +1,22 @@
+import { IAddress, IUser } from './auth';
+
 export interface Parcel {
+  pickupLocation: IAddress;
+  _id: string;
+  trackingId: string;
+  customer: IUser;
   receiverName: string;
   receiverPhone: string;
   pickupAddress: string;
   deliveryAddress: string;
-  parcelType: string;
   parcelSize: string;
+  parcelType: string;
   paymentMethod: string;
-  codAmount: string;
-  pickupLocation?: {
-    lat: number;
-    lng: number;
-  };
-
-  trackingId?: string;
+  codAmount: number;
   status?: 'booked' | 'picked_up' | 'in_transit' | 'delivered' | 'failed';
-  createdAt?: Date;
-  updatedAt?: Date;
+  history: unknown[];
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  agent: IUser;
 }

@@ -3,16 +3,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { createSocket } from '../../../../../lib/socket';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../../../../ui/card';
-import { createPulsingDot } from '../../../../../utils/pulsingDot';
-import useUser from '../../../../../guard/useUser';
+} from '../ui/card';
+import { createSocket } from '../../lib/socket';
+import { createPulsingDot } from '../../utils/pulsingDot';
 
 const customerSocket = createSocket('customer');
 
@@ -21,7 +20,7 @@ interface PointGeometry {
   coordinates: [number, number];
 }
 
-const CustomerAgentTrackingMap = () => {
+const GetLiveTrackingMap = ({ id }: { id: string }) => {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
     null,
   );
@@ -36,7 +35,6 @@ const CustomerAgentTrackingMap = () => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const popupRef = useRef<mapboxgl.Popup | null>(null);
-  const user = useUser();
 
   // Initialize map only once
   useEffect(() => {
@@ -119,7 +117,7 @@ const CustomerAgentTrackingMap = () => {
 
   // Socket listener
   useEffect(() => {
-    customerSocket.emit('joinCustomerRoom', user?._id ?? '');
+    customerSocket.emit('joinCustomerRoom', id ?? '');
 
     customerSocket.on(
       'locationUpdate',
@@ -139,7 +137,7 @@ const CustomerAgentTrackingMap = () => {
     return () => {
       customerSocket.disconnect();
     };
-  }, [user?._id]);
+  }, [id]);
 
   // Update map source data when location changes
   useEffect(() => {
@@ -194,4 +192,4 @@ const CustomerAgentTrackingMap = () => {
   );
 };
 
-export default CustomerAgentTrackingMap;
+export default GetLiveTrackingMap;

@@ -111,7 +111,7 @@ const CustomerBookParcel = () => {
                         </div>
                         <div className="grid gap-2">
                           <Label>Sender Contact</Label>
-                          <Input value={'Manikganj-1800'} readOnly />
+                          <Input value={user?.phone} readOnly />
                         </div>
                         <FormField
                           control={form.control}

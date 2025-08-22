@@ -1,5 +1,7 @@
+'use client';
+
 import React from 'react';
-import { Button } from '../../../../ui/button';
+import { Button, buttonVariants } from '../../../../ui/button';
 import {
   Check,
   Mail,
@@ -8,7 +10,6 @@ import {
   Phone,
   Printer,
   ScrollText,
-  Star,
   Truck,
   TruckElectric,
 } from 'lucide-react';
@@ -17,8 +18,17 @@ import Typography from '../../../../ui/typography';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../../ui/card';
 import { Progress } from '../../../../ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useGetCustomerParcelByIdQuery } from '../../../../../lib/features/services/parcel/parcelApi';
+import Link from 'next/link';
+import { cn } from '../../../../../lib/utils';
+import Loading from '../../../../../app/loading';
+import GetLiveTrackingMap from '../../../../features/GetLiveTrackingMap';
 
-const CustomerParcelDetails = () => {
+const CustomerParcelDetails = ({ id }: { id: string }) => {
+  const { data, isLoading } = useGetCustomerParcelByIdQuery(id);
+
+  if (isLoading) return <Loading />;
+
   return (
     <section>
       <div className="container">
@@ -27,7 +37,7 @@ const CustomerParcelDetails = () => {
             <div>
               <Heading as="h5">Parcel Details</Heading>
               <Typography variant="sm" textColor="muted">
-                Tracking ID: #TRK789012
+                {data?.parcel.trackingId}
               </Typography>
             </div>
             <Button>
@@ -72,20 +82,31 @@ const CustomerParcelDetails = () => {
                         <AvatarFallback>CN</AvatarFallback>
                       </Avatar>
                       <div>
-                        <Heading as="h6">John Doe</Heading>
+                        <Heading as="h6">
+                          {data?.parcel.customer.displayName}
+                        </Heading>
                         <Typography variant="sm">Customer</Typography>
                         <div className="mt-2 space-y-1.5">
-                          <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-                            <MapPin className="size-4" />
-                            123 Main Street, Dhaka 1212
+                          <p className="text-sm text-muted-foreground flex gap-1.5">
+                            <span>
+                              <MapPin className="size-4" />
+                            </span>
+                            <span>
+                              {data?.parcel.customer.address?.addressLine1}
+                              {', '}
+                              {data?.parcel.customer.address?.city}-
+                              {data?.parcel.customer.address?.zipCode}
+                              {', '}
+                              {data?.parcel.customer.address?.stateDivision}
+                            </span>
                           </p>
                           <p className="text-sm text-muted-foreground flex items-center gap-1.5">
                             <Phone className="size-4" />
-                            +880 1712 345678
+                            {data?.parcel.customer.phone}
                           </p>
                           <p className="text-sm text-muted-foreground flex items-center gap-1.5">
                             <Mail className="size-4" />
-                            john.doe@example.com
+                            {data?.parcel.customer.email}
                           </p>
                         </div>
                       </div>
@@ -106,16 +127,18 @@ const CustomerParcelDetails = () => {
                         <AvatarFallback>CN</AvatarFallback>
                       </Avatar>
                       <div>
-                        <Heading as="h6">Sarah Johnson</Heading>
-                        <Typography variant="sm">Receiver</Typography>
+                        <Heading as="h6">{data?.parcel.receiverName}</Heading>
+                        <Typography variant="sm">Receiver </Typography>
                         <div className="mt-2 space-y-1.5">
-                          <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-                            <MapPin className="size-4" />
-                            456 Oak Avenue, Chittagong 4000
+                          <p className="text-sm text-muted-foreground flex gap-1.5">
+                            <span>
+                              <MapPin className="size-4" />
+                            </span>
+                            <span>{data?.parcel.deliveryAddress}</span>
                           </p>
                           <p className="text-sm text-muted-foreground flex items-center gap-1.5">
                             <Phone className="size-4" />
-                            +880 1812 345678
+                            {data?.parcel.receiverPhone}
                           </p>
                         </div>
                       </div>
@@ -132,31 +155,33 @@ const CustomerParcelDetails = () => {
                         <dt className="text-sm font-medium text-muted-foreground">
                           Parcel Type
                         </dt>
-                        <dd className="mt-1 text-sm">Package</dd>
+                        <dd className="mt-1 text-sm">
+                          {data?.parcel.parcelType}
+                        </dd>
                       </div>
                       <div className="col-span-1">
                         <dt className="text-sm font-medium text-muted-foreground">
                           Dimensions
                         </dt>
-                        <dd className="mt-1 text-sm">30cm x 20cm x 15cm</dd>
+                        <dd className="mt-1 text-sm">
+                          {data?.parcel.parcelSize}
+                        </dd>
                       </div>
                       <div className="col-span-1">
                         <dt className="text-sm font-medium text-muted-foreground">
-                          Weight
+                          Payment
                         </dt>
-                        <dd className="mt-1 text-sm">2.5 kg</dd>
-                      </div>
-                      <div className="col-span-1">
-                        <dt className="text-sm font-medium text-muted-foreground">
-                          Payment Method
-                        </dt>
-                        <dd className="mt-1 text-sm">Cash on Delivery</dd>
+                        <dd className="mt-1 text-sm">
+                          {data?.parcel.paymentMethod}
+                        </dd>
                       </div>
                       <div className="col-span-1">
                         <dt className="text-sm font-medium text-muted-foreground">
                           COD Amount
                         </dt>
-                        <dd className="mt-1 text-sm">৳ 1,250</dd>
+                        <dd className="mt-1 text-sm">
+                          ৳ {data?.parcel.codAmount}
+                        </dd>
                       </div>
                     </dl>
                   </CardContent>
@@ -165,14 +190,7 @@ const CustomerParcelDetails = () => {
             </div>
             <div className="lg:col-span-2">
               <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Live Tracking</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-100 bg-primary w-full"></div>
-                  </CardContent>
-                </Card>
+                <GetLiveTrackingMap id={data?.parcel.agent._id} />
                 <Card>
                   <CardHeader>
                     <CardTitle>Delivery Agent</CardTitle>
@@ -189,34 +207,25 @@ const CustomerParcelDetails = () => {
                         </Avatar>
                         <div className="ml-4">
                           <Typography variant="sm" weight="medium">
-                            Michael Chen
+                            {data?.parcel.agent.displayName}
                           </Typography>
                           <Typography variant="sm" textColor="muted">
-                            Delivery Agent #A789
+                            Delivery Agent #{data?.parcel.agent._id.slice(0, 5)}
                           </Typography>
-                          <div className="mt-2 flex items-center">
-                            <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                              Online
-                            </span>
-                            <span className="ml-2 text-xs text-gray-500">
-                              Last updated: 12:45 PM
-                            </span>
-                          </div>
                           <div className="mt-4 space-y-1.5">
                             <p className="text-sm flex items-center gap-1.5">
                               <Phone className="mr-2 size-4" />
-                              +880 1912 345678
-                            </p>
-                            <p className="text-sm flex items-center gap-1.5">
-                              <Star className="mr-2 size-4" />
-                              4.8/5 (126 deliveries)
+                              {data?.parcel.agent.phone}
                             </p>
                           </div>
                         </div>
                       </div>
-                      <Button className="w-full">
+                      <Link
+                        href={`tel:${data?.parcel.agent.phone}`}
+                        className={cn(buttonVariants({}), 'w-full')}
+                      >
                         <Phone /> Call Delivery Agent
-                      </Button>
+                      </Link>
                     </div>
                   </CardContent>
                 </Card>

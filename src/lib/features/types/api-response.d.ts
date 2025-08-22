@@ -8,6 +8,11 @@ export type GetQueryParams = {
   globalFilter?: string;
 };
 
+interface GetParcelResponse {
+  status: 'success';
+  message: string;
+  parcel: Parcel;
+}
 export interface PaginatedResponse<T> {
   status: 'success';
   message: string;

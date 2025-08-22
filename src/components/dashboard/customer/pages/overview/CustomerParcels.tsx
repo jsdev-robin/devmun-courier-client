@@ -80,7 +80,7 @@ const CustomerParcels = () => {
                     </TableCell>
                     <TableCell>
                       <Link
-                        href={`/dashboard/customer/parcel/${parcel.trackingId}`}
+                        href={`/dashboard/customer/parcel/${parcel._id}`}
                         className={cn(buttonVariants({ size: 'sm' }))}
                       >
                         View Details

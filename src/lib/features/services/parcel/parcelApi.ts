@@ -1,6 +1,10 @@
 import { apiSlice } from '../../api/api';
 import { SuccessResponse } from '../../types';
-import { GetQueryParams, ParcelResponse } from '../../types/api-response';
+import {
+  GetParcelResponse,
+  GetQueryParams,
+  ParcelResponse,
+} from '../../types/api-response';
 import { Parcel } from '../../types/parcel';
 
 export const parcelApi = apiSlice.injectEndpoints({
@@ -26,10 +30,15 @@ export const parcelApi = apiSlice.injectEndpoints({
       },
       providesTags: ['Parcel'],
     }),
+
+    getCustomerParcelById: builder.query<GetParcelResponse, string>({
+      query: (id) => `customer/parcel/${id}`,
+    }),
   }),
 });
 
 export const {
   useCreateCustomerBookParcelMutation,
   useGetCustomerParcelsQuery,
+  useGetCustomerParcelByIdQuery,
 } = parcelApi;
