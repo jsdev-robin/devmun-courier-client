@@ -197,7 +197,11 @@ const CustomerParcelDetails = ({ id }: { id: string }) => {
             <div className="lg:col-span-2">
               {data?.parcel.agent ? (
                 <div className="space-y-6">
-                  <GetLiveTrackingMap id={data?.parcel.agent._id} />
+                  <GetLiveTrackingMap
+                    id={data?.parcel.agent._id}
+                    status={data?.parcel.status}
+                    name={data?.parcel.agent.displayName}
+                  />
                   <Card>
                     <CardHeader>
                       <CardTitle>Delivery Agent</CardTitle>

@@ -22,6 +22,8 @@ interface PointGeometry {
 
 const GetLiveTrackingMap = ({
   id,
+  name,
+  status,
 }: {
   id: string;
   status?: string;
@@ -31,8 +33,8 @@ const GetLiveTrackingMap = ({
     null,
   );
   const [agentInfo, setAgentInfo] = useState({
-    name: 'John Doe',
-    status: 'In Transit',
+    name: name,
+    status: status,
     eta: '25 minutes',
     vehicle: 'Motorcycle',
     speed: '0 km/h',
