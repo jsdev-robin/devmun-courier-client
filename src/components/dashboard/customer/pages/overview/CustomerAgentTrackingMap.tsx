@@ -3,15 +3,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { createSocket } from '../../../lib/socket';
+import { createSocket } from '../../../../../lib/socket';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../../ui/card';
-import { createPulsingDot } from '../../../utils/pulsingDot';
+} from '../../../../ui/card';
+import { createPulsingDot } from '../../../../../utils/pulsingDot';
 
 const customerSocket = createSocket('customer');
 

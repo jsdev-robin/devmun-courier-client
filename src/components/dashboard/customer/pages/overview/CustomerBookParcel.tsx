@@ -4,8 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import Heading from '../../ui/heading';
-import { Card } from '../../ui/card';
+import Heading from '../../../../ui/heading';
+import { Card } from '../../../../ui/card';
 import {
   Form,
   FormControl,
@@ -13,16 +13,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '../../ui/form';
-import { Input } from '../../ui/input';
-import GetLocation from '../../features/GetLocation';
-import SelectInput from '../../ui/SelectInput';
-import { Button } from '../../ui/button';
-import { useCreateCustomerBookParcelMutation } from '../../../lib/features/services/parcel/parcelApi';
+} from '../../../../ui/form';
+import { Input } from '../../../../ui/input';
+import GetLocation from '../../../../features/GetLocation';
+import SelectInput from '../../../../ui/SelectInput';
+import { Button } from '../../../../ui/button';
+import { useCreateCustomerBookParcelMutation } from '../../../../../lib/features/services/parcel/parcelApi';
 import { Loader } from 'lucide-react';
 import { toast } from 'sonner';
-import useUser from '../../../guard/useUser';
-import { Label } from '../../ui/label';
+import useUser from '../../../../../guard/useUser';
+import { Label } from '../../../../ui/label';
 
 const parcelBookingSchema = z.object({
   receiverName: z.string().min(1, { message: 'Receiver name is required' }),

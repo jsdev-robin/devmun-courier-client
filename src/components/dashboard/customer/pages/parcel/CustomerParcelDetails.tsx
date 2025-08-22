@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from '../../../ui/button';
+import { Button } from '../../../../ui/button';
 import {
   Check,
   Mail,
@@ -12,10 +12,10 @@ import {
   Truck,
   TruckElectric,
 } from 'lucide-react';
-import Heading from '../../../ui/heading';
-import Typography from '../../../ui/typography';
-import { Card, CardContent, CardHeader, CardTitle } from '../../../ui/card';
-import { Progress } from '../../../ui/progress';
+import Heading from '../../../../ui/heading';
+import Typography from '../../../../ui/typography';
+import { Card, CardContent, CardHeader, CardTitle } from '../../../../ui/card';
+import { Progress } from '../../../../ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const CustomerParcelDetails = () => {

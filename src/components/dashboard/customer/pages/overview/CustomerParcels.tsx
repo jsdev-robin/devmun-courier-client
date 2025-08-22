@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import Heading from '../../ui/heading';
-import { Card } from '../../ui/card';
+import Heading from '../../../../ui/heading';
+import { Card } from '../../../../ui/card';
 import {
   Table,
   TableHeader,
@@ -10,8 +10,8 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from '../../ui/table';
-import { useGetCustomerParcelsQuery } from '../../../lib/features/services/parcel/parcelApi';
+} from '../../../../ui/table';
+import { useGetCustomerParcelsQuery } from '../../../../../lib/features/services/parcel/parcelApi';
 
 const CustomerParcels = () => {
   const { data } = useGetCustomerParcelsQuery({});
