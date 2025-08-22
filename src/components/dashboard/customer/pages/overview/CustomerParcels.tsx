@@ -12,6 +12,11 @@ import {
   TableCell,
 } from '../../../../ui/table';
 import { useGetCustomerParcelsQuery } from '../../../../../lib/features/services/parcel/parcelApi';
+import { buttonVariants } from '../../../../ui/button';
+import { cn } from '../../../../../lib/utils';
+import Link from 'next/link';
+import { Badge } from '../../../../ui/badge';
+import { getStatusClass } from '../../../../../utils/getStatusColor';
 
 const CustomerParcels = () => {
   const { data } = useGetCustomerParcelsQuery({});
@@ -28,14 +33,26 @@ const CustomerParcels = () => {
           </Heading>
           <Card className="p-0 overflow-hidden">
             <Table>
-              <TableHeader className="bg-primary">
+              <TableHeader className="h-14 bg-primary">
                 <TableRow>
-                  <TableHead>Tracking ID</TableHead>
-                  <TableHead>From</TableHead>
-                  <TableHead>To</TableHead>
-                  <TableHead>Booking Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Action</TableHead>
+                  <TableHead className="text-white font-bold text-sm">
+                    Tracking ID
+                  </TableHead>
+                  <TableHead className="text-white font-bold text-sm">
+                    From
+                  </TableHead>
+                  <TableHead className="text-white font-bold text-sm">
+                    To
+                  </TableHead>
+                  <TableHead className="text-white font-bold text-sm">
+                    Booking Date
+                  </TableHead>
+                  <TableHead className="text-white font-bold text-sm">
+                    Status
+                  </TableHead>
+                  <TableHead className="text-white font-bold text-sm">
+                    Action
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -44,9 +61,31 @@ const CustomerParcels = () => {
                     <TableCell>{parcel.trackingId}</TableCell>
                     <TableCell>{parcel.pickupAddress}</TableCell>
                     <TableCell>{parcel.deliveryAddress}</TableCell>
-                    <TableCell>{parcel.updatedAt?.toLocaleString()}</TableCell>
-                    <TableCell>{parcel.status}</TableCell>
-                    <TableCell>view</TableCell>
+                    <TableCell>
+                      {parcel.updatedAt
+                        ? new Date(parcel.updatedAt).toLocaleString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })
+                        : ''}
+                    </TableCell>
+
+                    <TableCell>
+                      <Badge className={getStatusClass(parcel.status)}>
+                        {parcel.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Link
+                        href={`/dashboard/customer/parcel/${parcel.trackingId}`}
+                        className={cn(buttonVariants({ size: 'sm' }))}
+                      >
+                        View Details
+                      </Link>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

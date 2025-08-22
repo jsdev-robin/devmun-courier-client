@@ -41,7 +41,7 @@ const AgentNavigation = () => {
 
       directions.current = new MapboxDirections({
         accessToken: mapboxgl.accessToken!,
-        unit: 'metric',
+        unit: 'imperial',
         profile: 'mapbox/driving',
         controls: { inputs: true, instructions: true },
       }) as DirectionsWithEvents;
@@ -82,7 +82,7 @@ const AgentNavigation = () => {
     <div className="-my-6 h-[calc(100vh-64px)]">
       <div ref={mapContainer} className="w-full h-screen" />
       {duration !== null && distance !== null && (
-        <div className="bg-red-300 top-20 left-4 p-2 rounded shadow">
+        <div className="bg-red-300 top-20 left-4 p-2  rounded shadow">
           Duration: {(duration / 60).toFixed(2)} minutes <br />
           Distance: {(distance / 1000).toFixed(2)} km
         </div>

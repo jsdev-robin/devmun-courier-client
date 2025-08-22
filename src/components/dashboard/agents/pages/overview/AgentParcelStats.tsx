@@ -28,7 +28,7 @@ const AgentParcelStats = () => {
             });
           },
           (err) => console.error(err),
-          { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 },
+          { enableHighAccuracy: true, maximumAge: 0, timeout: Infinity },
         );
 
         return () => {

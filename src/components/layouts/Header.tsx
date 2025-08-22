@@ -43,7 +43,7 @@ const Header = ({
     });
   };
 
-  const { isLoading: profileLoading } =
+  const { isLoading: profileLoading, data } =
     userAuthApi.endpoints.getProfile.useQuery();
 
   return (
@@ -96,7 +96,17 @@ const Header = ({
                   <DropdownMenuContent className="w-56" align="end">
                     <DropdownMenuLabel>{user?.displayName}</DropdownMenuLabel>
                     <DropdownMenuGroup>
-                      <DropdownMenuItem>Profile</DropdownMenuItem>
+                      <Link
+                        href={
+                          data?.data.user.role === 'admin'
+                            ? '/dashboard/admin/overview'
+                            : data?.data.user.role === 'agent'
+                            ? '/dashboard/agent/overview'
+                            : '/dashboard/customer/overview'
+                        }
+                      >
+                        <DropdownMenuItem>Profile</DropdownMenuItem>
+                      </Link>
                       <DropdownMenuItem>Settings</DropdownMenuItem>
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />

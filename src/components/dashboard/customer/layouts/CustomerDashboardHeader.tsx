@@ -1,8 +1,36 @@
+'use client';
+
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Package } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { LogOut } from 'lucide-react';
+import { useSignoutMutation } from '../../../../lib/features/services/auth/authApi';
+import { toast } from 'sonner';
+import useUser from '../../../../guard/useUser';
 
 const CustomerDashboardHeader = () => {
+  const [signout, { isLoading }] = useSignoutMutation();
+  const user = useUser();
+
+  const handleLogout = async () => {
+    await toast.promise(signout().unwrap(), {
+      loading: 'Signing out...',
+      success: (res) => {
+        window.location.href = '/';
+        return res.message || 'Logout';
+      },
+      error: (err) => err?.data?.message || 'Logout',
+    });
+  };
+
   return (
     <nav className="bg-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -19,18 +47,31 @@ const CustomerDashboardHeader = () => {
             <div className="ml-4 flex items-center md:ml-6">
               <div className="relative ml-3">
                 <div className="flex items-center">
-                  <span className="mr-2 text-sm font-medium text-gray-700">
-                    John Doe
+                  <span className="mr-2 text-sm font-bold">
+                    {user?.displayName}
                   </span>
-                  <button className="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                    <Avatar>
-                      <AvatarImage
-                        src="https://github.com/shadcn.png"
-                        alt="@shadcn"
-                      />
-                      <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                  </button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger>
+                      <Avatar>
+                        <AvatarImage
+                          src="https://github.com/shadcn.png"
+                          alt="@shadcn"
+                        />
+                        <AvatarFallback>{user?.familyName[0]}</AvatarFallback>
+                      </Avatar>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56" align="end">
+                      <DropdownMenuLabel>{user?.displayName}</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={handleLogout}
+                        disabled={isLoading}
+                      >
+                        <LogOut />
+                        Log out
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             </div>

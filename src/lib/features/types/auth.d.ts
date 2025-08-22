@@ -13,6 +13,7 @@ export interface IUser {
   twoFA: {
     enabled: boolean;
   };
+  role: 'admin' | 'agent' | 'customer';
 }
 
 export interface AuthState {

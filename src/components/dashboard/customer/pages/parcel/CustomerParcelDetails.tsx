@@ -45,7 +45,7 @@ const CustomerParcelDetails = () => {
               </Typography>
             </CardHeader>
             <CardContent>
-              <Progress value={65} className="h-3" />
+              <Progress value={80} className="h-3" />
               <div className="flex justify-between mt-3 text-sm text-muted-foreground">
                 <span>Order Placed</span>
                 <span>Picked Up</span>
