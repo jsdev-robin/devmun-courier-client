@@ -24,21 +24,21 @@ import { Button } from '../../../../ui/button';
 import GetLocation from '../../../../features/GetLocation';
 
 const AddressSchema = z.object({
-  firstName: z
-    .string()
-    .trim()
-    .min(2, 'First name must be at least 2 characters')
-    .max(50, 'First name must be at most 50 characters'),
-  lastName: z
-    .string()
-    .trim()
-    .min(2, 'Last name must be at least 2 characters')
-    .max(50, 'Last name must be at most 50 characters'),
-  phoneNumber: z
-    .string()
-    .trim()
-    .min(6, 'Phone number must be at least 6 characters')
-    .max(20, 'Phone number must be at most 20 characters'),
+  // firstName: z
+  //   .string()
+  //   .trim()
+  //   .min(2, 'First name must be at least 2 characters')
+  //   .max(50, 'First name must be at most 50 characters'),
+  // lastName: z
+  //   .string()
+  //   .trim()
+  //   .min(2, 'Last name must be at least 2 characters')
+  //   .max(50, 'Last name must be at most 50 characters'),
+  // phoneNumber: z
+  //   .string()
+  //   .trim()
+  //   .min(6, 'Phone number must be at least 6 characters')
+  //   .max(20, 'Phone number must be at most 20 characters'),
   addressLine1: z
     .string()
     .trim()
@@ -88,9 +88,9 @@ const CustomerAddress = () => {
     resolver: zodResolver(AddressSchema),
     mode: 'onChange',
     defaultValues: {
-      firstName: '',
-      lastName: '',
-      phoneNumber: '',
+      // firstName: '',
+      // lastName: '',
+      // phoneNumber: '',
       addressLine1: '',
       addressLine2: '',
       city: '',
@@ -115,8 +115,8 @@ const CustomerAddress = () => {
       <div className="container">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="grid gap-6 grid-cols-3">
-              <div className="col-span-2">
+            <div className="grid gap-6 lg:grid-cols-3">
+              <div className="lg:col-span-2">
                 <Card>
                   <CardHeader>
                     <CardTitle>Manage Your Addresses</CardTitle>
@@ -125,52 +125,7 @@ const CustomerAddress = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    <div className="grid gap-6 grid-cols-2">
-                      <FormField
-                        control={form.control}
-                        name="firstName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>First Name</FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                placeholder="Enter first name"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="lastName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Last Name</FormLabel>
-                            <FormControl>
-                              <Input {...field} placeholder="Enter last name" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="phoneNumber"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Phone Number</FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                placeholder="Enter phone number"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                    <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
                       <FormField
                         control={form.control}
                         name="addressLine1"
@@ -260,8 +215,11 @@ const CustomerAddress = () => {
                   </CardContent>
                 </Card>
               </div>
-              <div className="col-span-1">
-                <GetLocation setPickupLocation={setLocation} />
+              <div className="lg:col-span-1">
+                <GetLocation
+                  className="h-100"
+                  setPickupLocation={setLocation}
+                />
               </div>
             </div>
           </form>
