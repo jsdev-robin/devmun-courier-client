@@ -1,5 +1,16 @@
 import { IAddress, IUser } from './auth';
 
+export interface ParcelRequest {
+  receiverName: string;
+  receiverPhone: string;
+  pickupAddress: string;
+  deliveryAddress: string;
+  parcelType: string;
+  parcelSize: string;
+  paymentMethod: string;
+  codAmount: string | number;
+}
+
 export interface Parcel {
   pickupLocation: IAddress;
   _id: string;

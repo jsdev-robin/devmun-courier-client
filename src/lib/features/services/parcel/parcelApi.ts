@@ -5,11 +5,11 @@ import {
   GetQueryParams,
   ParcelResponse,
 } from '../../types/api-response';
-import { Parcel } from '../../types/parcel';
+import { ParcelRequest } from '../../types/parcel';
 
 export const parcelApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    createCustomerBookParcel: builder.mutation<SuccessResponse, Parcel>({
+    createCustomerBookParcel: builder.mutation<SuccessResponse, ParcelRequest>({
       query: (data) => ({
         url: `/customer/parcel`,
         method: 'POST',
