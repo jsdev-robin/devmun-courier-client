@@ -61,7 +61,7 @@ const CustomerDashboardHeader = () => {
                       <DropdownMenuLabel>{user?.displayName}</DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuGroup>
-                        <Link href={'/'}>
+                        <Link href="/dashboard/customer/settings">
                           <DropdownMenuItem>Settings</DropdownMenuItem>
                         </Link>
                       </DropdownMenuGroup>
