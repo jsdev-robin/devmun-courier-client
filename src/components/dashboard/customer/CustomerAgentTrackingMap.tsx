@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { socket } from '../../../lib/socket';
+import { createSocket } from '../../../lib/socket';
 import {
   Card,
   CardContent,
@@ -12,6 +12,8 @@ import {
   CardTitle,
 } from '../../ui/card';
 import { createPulsingDot } from '../../../utils/pulsingDot';
+
+const customerSocket = createSocket('customer');
 
 interface PointGeometry {
   type: 'Point';
@@ -116,9 +118,9 @@ const CustomerAgentTrackingMap = () => {
 
   // Socket listener
   useEffect(() => {
-    socket.emit('joinCustomerRoom', user ?? '');
+    customerSocket.emit('joinCustomerRoom', user ?? '');
 
-    socket.on(
+    customerSocket.on(
       'locationUpdate',
       (data: { lat: number; lng: number; speed: number }) => {
         setLocation({ lat: data.lat, lng: data.lng });
@@ -129,12 +131,12 @@ const CustomerAgentTrackingMap = () => {
       },
     );
 
-    socket.on('broadcastingStatus', (status: boolean) => {
+    customerSocket.on('broadcastingStatus', (status: boolean) => {
       setIsBroadcasting(status);
     });
 
     return () => {
-      socket.disconnect();
+      customerSocket.disconnect();
     };
   }, []);
 

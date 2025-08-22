@@ -4,8 +4,10 @@ import { useEffect } from 'react';
 import { Card, CardAction, CardHeader, CardTitle } from '../../../../ui/card';
 import Heading from '../../../../ui/heading';
 import { AlertTriangle, CircleCheck, Clock, Package2 } from 'lucide-react';
-import { socket } from '../../../../../lib/socket';
 import useUser from '../../../../../guard/useUser';
+import { createSocket } from '../../../../../lib/socket';
+
+const customerSocket = createSocket('customer');
 
 const AgentParcelStats = () => {
   const user = useUser();
@@ -18,8 +20,8 @@ const AgentParcelStats = () => {
             const { latitude, longitude, speed } = position.coords;
             const speedKmh = speed !== null ? speed * 3.6 : 0;
 
-            socket.emit('agentLocation', {
-              customerId: user?._id,
+            customerSocket.emit('agentLocation', {
+              customerId: user._id,
               lat: latitude,
               lng: longitude,
               speed: Math.round(speedKmh),
@@ -31,7 +33,7 @@ const AgentParcelStats = () => {
 
         return () => {
           navigator.geolocation.clearWatch(watchId);
-          socket.emit('agentDisconnect', user?._id);
+          customerSocket.emit('agentDisconnect', user._id);
         };
       }
     }
