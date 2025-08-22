@@ -5,7 +5,7 @@ const AdminDashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <CustomerDashboardHeader />
-      <main className="p-4 space-y-4">{children}</main>
+      <main className="py-6 space-y-20">{children}</main>
     </>
   );
 };
