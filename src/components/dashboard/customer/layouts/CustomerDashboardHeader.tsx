@@ -2,10 +2,10 @@
 
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Package } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -15,6 +15,8 @@ import { LogOut } from 'lucide-react';
 import { useSignoutMutation } from '../../../../lib/features/services/auth/authApi';
 import { toast } from 'sonner';
 import useUser from '../../../../guard/useUser';
+import MainLogo from '../../../ui/main-logo';
+import Link from 'next/link';
 
 const CustomerDashboardHeader = () => {
   const [signout, { isLoading }] = useSignoutMutation();
@@ -36,12 +38,7 @@ const CustomerDashboardHeader = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <div className="flex-shrink-0 flex items-center">
-              <Package />
-              <span className="ml-2 text-xl font-bold text-dark">
-                ParcelTrack
-              </span>
-            </div>
+            <MainLogo />
           </div>
           <div className="flex items-center">
             <div className="ml-4 flex items-center md:ml-6">
@@ -63,6 +60,13 @@ const CustomerDashboardHeader = () => {
                     <DropdownMenuContent className="w-56" align="end">
                       <DropdownMenuLabel>{user?.displayName}</DropdownMenuLabel>
                       <DropdownMenuSeparator />
+                      <DropdownMenuGroup>
+                        <Link href={'/'}>
+                          <DropdownMenuItem>Settings</DropdownMenuItem>
+                        </Link>
+                      </DropdownMenuGroup>
+                      <DropdownMenuSeparator />
+
                       <DropdownMenuItem
                         onClick={handleLogout}
                         disabled={isLoading}

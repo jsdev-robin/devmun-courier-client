@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LogOut, Package2 } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import {
   userAuthApi,
   useSignoutMutation,
@@ -20,6 +20,7 @@ import {
 import useUser from '../../guard/useUser';
 import { toast } from 'sonner';
 import { Skeleton } from '../ui/skeleton';
+import MainLogo from '../ui/main-logo';
 
 const Header = ({
   role,
@@ -50,13 +51,7 @@ const Header = ({
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center py-4">
-          <Link
-            href="/"
-            className="flex items-center text-primary text-2xl font-bold mb-4 md:mb-0"
-          >
-            <Package2 className="mr-3" />
-            <span>QuickShip</span>
-          </Link>
+          <MainLogo />
           <nav className="mb-4 md:mb-0">
             <ul className="flex flex-wrap justify-center space-x-5">
               {[
