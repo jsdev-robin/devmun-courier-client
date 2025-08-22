@@ -20,7 +20,13 @@ interface PointGeometry {
   coordinates: [number, number];
 }
 
-const GetLiveTrackingMap = ({ id }: { id: string }) => {
+const GetLiveTrackingMap = ({
+  id,
+}: {
+  id: string;
+  status?: string;
+  name?: string;
+}) => {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
     null,
   );
@@ -117,25 +123,36 @@ const GetLiveTrackingMap = ({ id }: { id: string }) => {
 
   // Socket listener
   useEffect(() => {
-    customerSocket.emit('joinCustomerRoom', id ?? '');
+    if (!id) return;
 
-    customerSocket.on(
-      'locationUpdate',
-      (data: { lat: number; lng: number; speed: number }) => {
-        setLocation({ lat: data.lat, lng: data.lng });
-        setAgentInfo((prev) => ({
-          ...prev,
-          speed: `${data.speed} km/h`,
-        }));
-      },
-    );
+    if (!customerSocket.connected) {
+      customerSocket.connect();
+    }
 
-    customerSocket.on('broadcastingStatus', (status: boolean) => {
+    customerSocket.emit('joinCustomerRoom', id);
+
+    const locationUpdateHandler = (data: {
+      lat: number;
+      lng: number;
+      speed: number;
+    }) => {
+      setLocation({ lat: data.lat, lng: data.lng });
+      setAgentInfo((prev) => ({
+        ...prev,
+        speed: `${data.speed} km/h`,
+      }));
+    };
+
+    const broadcastingHandler = (status: boolean) => {
       setIsBroadcasting(status);
-    });
+    };
+
+    customerSocket.on('locationUpdate', locationUpdateHandler);
+    customerSocket.on('broadcastingStatus', broadcastingHandler);
 
     return () => {
-      customerSocket.disconnect();
+      customerSocket.off('locationUpdate', locationUpdateHandler);
+      customerSocket.off('broadcastingStatus', broadcastingHandler);
     };
   }, [id]);
 

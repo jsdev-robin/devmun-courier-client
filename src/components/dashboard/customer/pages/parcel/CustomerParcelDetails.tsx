@@ -15,7 +15,13 @@ import {
 } from 'lucide-react';
 import Heading from '../../../../ui/heading';
 import Typography from '../../../../ui/typography';
-import { Card, CardContent, CardHeader, CardTitle } from '../../../../ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../../../../ui/card';
 import { Progress } from '../../../../ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useGetCustomerParcelByIdQuery } from '../../../../../lib/features/services/parcel/parcelApi';
@@ -189,155 +195,177 @@ const CustomerParcelDetails = ({ id }: { id: string }) => {
               </div>
             </div>
             <div className="lg:col-span-2">
-              <div className="space-y-6">
-                <GetLiveTrackingMap id={data?.parcel.agent._id} />
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Delivery Agent</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-6">
-                      <div className="flex items-start">
-                        <Avatar>
-                          <AvatarImage
-                            src="https://github.com/shadcn.png"
-                            alt="@shadcn"
-                          />
-                          <AvatarFallback>CN</AvatarFallback>
-                        </Avatar>
-                        <div className="ml-4">
-                          <Typography variant="sm" weight="medium">
-                            {data?.parcel.agent.displayName}
-                          </Typography>
-                          <Typography variant="sm" textColor="muted">
-                            Delivery Agent #{data?.parcel.agent._id.slice(0, 5)}
-                          </Typography>
-                          <div className="mt-4 space-y-1.5">
-                            <p className="text-sm flex items-center gap-1.5">
-                              <Phone className="mr-2 size-4" />
-                              {data?.parcel.agent.phone}
-                            </p>
+              {data?.parcel.agent ? (
+                <div className="space-y-6">
+                  <GetLiveTrackingMap id={data?.parcel.agent._id} />
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Delivery Agent</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-6">
+                        <div className="flex items-start">
+                          <Avatar>
+                            <AvatarImage
+                              src="https://github.com/shadcn.png"
+                              alt="@shadcn"
+                            />
+                            <AvatarFallback>CN</AvatarFallback>
+                          </Avatar>
+                          <div className="ml-4">
+                            <Typography variant="sm" weight="medium">
+                              {data?.parcel.agent.displayName}
+                            </Typography>
+                            <Typography variant="sm" textColor="muted">
+                              Delivery Agent #
+                              {data?.parcel.agent._id.slice(0, 5)}
+                            </Typography>
+                            <div className="mt-4 space-y-1.5">
+                              <p className="text-sm flex items-center gap-1.5">
+                                <Phone className="mr-2 size-4" />
+                                {data?.parcel.agent.phone}
+                              </p>
+                            </div>
                           </div>
                         </div>
+                        <Link
+                          href={`tel:${data?.parcel.agent.phone}`}
+                          className={cn(buttonVariants({}), 'w-full')}
+                        >
+                          <Phone /> Call Delivery Agent
+                        </Link>
                       </div>
-                      <Link
-                        href={`tel:${data?.parcel.agent.phone}`}
-                        className={cn(buttonVariants({}), 'w-full')}
-                      >
-                        <Phone /> Call Delivery Agent
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Tracking History</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="status-timeline">
+                        <li className="relative pb-4">
+                          <div className="relative flex space-x-3">
+                            <div>
+                              <span className="h-6 w-6 rounded-full bg-green-500 flex items-center justify-center ring-8 ring-white">
+                                <Check className="size-3.5 text-white" />
+                              </span>
+                            </div>
+                            <div className="min-w-0 flex-1 flex justify-between space-x-4">
+                              <div>
+                                <p className="text-sm text-gray-700">
+                                  Parcel has been delivered successfully
+                                </p>
+                              </div>
+                              <div className="text-right text-sm whitespace-nowrap text-gray-500">
+                                <time dateTime="2023-10-15">
+                                  Oct 15, 10:30 AM
+                                </time>
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                        <li className="relative pb-4">
+                          <div className="relative flex space-x-3">
+                            <div>
+                              <span className="h-6 w-6 rounded-full bg-primary flex items-center justify-center ring-8 ring-white">
+                                <Truck className="size-3.5 text-white" />
+                              </span>
+                            </div>
+                            <div className="min-w-0 flex-1 flex justify-between space-x-4">
+                              <div>
+                                <p className="text-sm text-gray-700">
+                                  Out for delivery
+                                </p>
+                              </div>
+                              <div className="text-right text-sm whitespace-nowrap text-gray-500">
+                                <time dateTime="2023-10-15">
+                                  Oct 15, 9:15 AM
+                                </time>
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                        <li className="relative pb-4">
+                          <div className="relative flex space-x-3">
+                            <div>
+                              <span className="h-6 w-6 rounded-full bg-primary flex items-center justify-center ring-8 ring-white">
+                                <TruckElectric className="size-3.5 text-white" />
+                              </span>
+                            </div>
+                            <div className="min-w-0 flex-1 flex justify-between space-x-4">
+                              <div>
+                                <p className="text-sm text-gray-700">
+                                  In transit to destination city
+                                </p>
+                              </div>
+                              <div className="text-right text-sm whitespace-nowrap text-gray-500">
+                                <time dateTime="2023-10-14">
+                                  Oct 14, 2:30 PM
+                                </time>
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                        <li className="relative pb-4">
+                          <div className="relative flex space-x-3">
+                            <div>
+                              <span className="h-6 w-6 rounded-full bg-primary flex items-center justify-center ring-8 ring-white">
+                                <PackageOpen className="size-3.5 text-white" />
+                              </span>
+                            </div>
+                            <div className="min-w-0 flex-1 flex justify-between space-x-4">
+                              <div>
+                                <p className="text-sm text-gray-700">
+                                  Parcel picked up from sender
+                                </p>
+                              </div>
+                              <div className="text-right text-sm whitespace-nowrap text-gray-500">
+                                <time dateTime="2023-10-14">
+                                  Oct 14, 10:45 AM
+                                </time>
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                        <li className="relative">
+                          <div className="relative flex space-x-3">
+                            <div>
+                              <span className="h-6 w-6 rounded-full bg-gray-300 flex items-center justify-center ring-8 ring-white">
+                                <ScrollText className="size-3.5 text-white" />
+                              </span>
+                            </div>
+                            <div className="min-w-0 flex-1 flex justify-between space-x-4">
+                              <div>
+                                <p className="text-sm text-gray-700">
+                                  Order created and payment confirmed
+                                </p>
+                              </div>
+                              <div className="text-right text-sm whitespace-nowrap text-gray-500">
+                                <time dateTime="2023-10-13">
+                                  Oct 13, 4:20 PM
+                                </time>
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                      </ul>
+                    </CardContent>
+                  </Card>
+                </div>
+              ) : (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Tracking History</CardTitle>
+                    <CardTitle>
+                      No agent has been assigned to this parcel yet.
+                    </CardTitle>
+                    <CardDescription>
+                      Please wait while the system assigns an agent to handle
+                      this parcel. You will be notified once an agent is
+                      assigned.
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <ul className="status-timeline">
-                      <li className="relative pb-4">
-                        <div className="relative flex space-x-3">
-                          <div>
-                            <span className="h-6 w-6 rounded-full bg-green-500 flex items-center justify-center ring-8 ring-white">
-                              <Check className="size-3.5 text-white" />
-                            </span>
-                          </div>
-                          <div className="min-w-0 flex-1 flex justify-between space-x-4">
-                            <div>
-                              <p className="text-sm text-gray-700">
-                                Parcel has been delivered successfully
-                              </p>
-                            </div>
-                            <div className="text-right text-sm whitespace-nowrap text-gray-500">
-                              <time dateTime="2023-10-15">
-                                Oct 15, 10:30 AM
-                              </time>
-                            </div>
-                          </div>
-                        </div>
-                      </li>
-                      <li className="relative pb-4">
-                        <div className="relative flex space-x-3">
-                          <div>
-                            <span className="h-6 w-6 rounded-full bg-primary flex items-center justify-center ring-8 ring-white">
-                              <Truck className="size-3.5 text-white" />
-                            </span>
-                          </div>
-                          <div className="min-w-0 flex-1 flex justify-between space-x-4">
-                            <div>
-                              <p className="text-sm text-gray-700">
-                                Out for delivery
-                              </p>
-                            </div>
-                            <div className="text-right text-sm whitespace-nowrap text-gray-500">
-                              <time dateTime="2023-10-15">Oct 15, 9:15 AM</time>
-                            </div>
-                          </div>
-                        </div>
-                      </li>
-                      <li className="relative pb-4">
-                        <div className="relative flex space-x-3">
-                          <div>
-                            <span className="h-6 w-6 rounded-full bg-primary flex items-center justify-center ring-8 ring-white">
-                              <TruckElectric className="size-3.5 text-white" />
-                            </span>
-                          </div>
-                          <div className="min-w-0 flex-1 flex justify-between space-x-4">
-                            <div>
-                              <p className="text-sm text-gray-700">
-                                In transit to destination city
-                              </p>
-                            </div>
-                            <div className="text-right text-sm whitespace-nowrap text-gray-500">
-                              <time dateTime="2023-10-14">Oct 14, 2:30 PM</time>
-                            </div>
-                          </div>
-                        </div>
-                      </li>
-                      <li className="relative pb-4">
-                        <div className="relative flex space-x-3">
-                          <div>
-                            <span className="h-6 w-6 rounded-full bg-primary flex items-center justify-center ring-8 ring-white">
-                              <PackageOpen className="size-3.5 text-white" />
-                            </span>
-                          </div>
-                          <div className="min-w-0 flex-1 flex justify-between space-x-4">
-                            <div>
-                              <p className="text-sm text-gray-700">
-                                Parcel picked up from sender
-                              </p>
-                            </div>
-                            <div className="text-right text-sm whitespace-nowrap text-gray-500">
-                              <time dateTime="2023-10-14">
-                                Oct 14, 10:45 AM
-                              </time>
-                            </div>
-                          </div>
-                        </div>
-                      </li>
-                      <li className="relative">
-                        <div className="relative flex space-x-3">
-                          <div>
-                            <span className="h-6 w-6 rounded-full bg-gray-300 flex items-center justify-center ring-8 ring-white">
-                              <ScrollText className="size-3.5 text-white" />
-                            </span>
-                          </div>
-                          <div className="min-w-0 flex-1 flex justify-between space-x-4">
-                            <div>
-                              <p className="text-sm text-gray-700">
-                                Order created and payment confirmed
-                              </p>
-                            </div>
-                            <div className="text-right text-sm whitespace-nowrap text-gray-500">
-                              <time dateTime="2023-10-13">Oct 13, 4:20 PM</time>
-                            </div>
-                          </div>
-                        </div>
-                      </li>
-                    </ul>
-                  </CardContent>
                 </Card>
-              </div>
+              )}
             </div>
           </div>
         </div>
