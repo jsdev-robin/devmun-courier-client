@@ -22,6 +22,18 @@ import {
 import { Input } from '../../../../ui/input';
 import { Button } from '../../../../ui/button';
 import GetLocation from '../../../../features/GetLocation';
+import Link from 'next/link';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
+import { Loader } from 'lucide-react';
+import { toast } from 'sonner';
+import { useUpdateAddressMutation } from '../../../../../lib/features/services/auth/authApi';
 
 const AddressSchema = z.object({
   // firstName: z
@@ -84,6 +96,7 @@ const CustomerAddress = () => {
     lat: number;
     lng: number;
   } | null>(null);
+  const [updateAddress, { isLoading }] = useUpdateAddressMutation();
   const form = useForm<z.infer<typeof AddressSchema>>({
     resolver: zodResolver(AddressSchema),
     mode: 'onChange',
@@ -101,7 +114,19 @@ const CustomerAddress = () => {
   });
 
   async function onSubmit(data: z.infer<typeof AddressSchema>) {
-    console.log(data);
+    await toast.promise(
+      updateAddress(data)
+        .unwrap()
+        .then((res) => res),
+      {
+        loading: 'Updating your profile',
+        success: (res) => {
+          form.reset();
+          return res?.message;
+        },
+        error: (err) => err?.data?.message,
+      },
+    );
   }
 
   useEffect(() => {
@@ -113,117 +138,145 @@ const CustomerAddress = () => {
   return (
     <section>
       <div className="container">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="grid gap-6 lg:grid-cols-3">
-              <div className="lg:col-span-2">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Manage Your Addresses</CardTitle>
-                    <CardDescription>
-                      Add and manage your delivery addresses for faster checkout
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
-                      <FormField
-                        control={form.control}
-                        name="addressLine1"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Address Line 1</FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                placeholder="Street address, P.O. box"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="addressLine2"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Address Line 2 (Optional)</FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                placeholder="Apartment, suite, etc."
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="city"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>City</FormLabel>
-                            <FormControl>
-                              <Input {...field} placeholder="Enter city" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="stateDivision"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>State/Division</FormLabel>
-                            <FormControl>
-                              <Input {...field} placeholder="Enter division" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="zipCode"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>ZIP Code</FormLabel>
-                            <FormControl>
-                              <Input {...field} placeholder="Enter ZIP code" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="landmark"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Landmark (Optional)</FormLabel>
-                            <FormControl>
-                              <Input {...field} placeholder="Nearby landmark" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <Button type="submit">Save Address</Button>
-                  </CardContent>
-                </Card>
+        <div className="space-y-6">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/dashboard/customer/overview">Dashboard</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Settings</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <div className="grid gap-6 lg:grid-cols-3">
+                <div className="lg:col-span-2">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Manage Your Addresses</CardTitle>
+                      <CardDescription>
+                        Add and manage your delivery addresses for faster
+                        checkout
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
+                        <FormField
+                          control={form.control}
+                          name="addressLine1"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Address Line 1</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="Street address, P.O. box"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="addressLine2"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Address Line 2 (Optional)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="Apartment, suite, etc."
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="city"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>City</FormLabel>
+                              <FormControl>
+                                <Input {...field} placeholder="Enter city" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="stateDivision"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>State/Division</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="Enter division"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="zipCode"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>ZIP Code</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="Enter ZIP code"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="landmark"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Landmark (Optional)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="Nearby landmark"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <Button type="submit" disabled={isLoading}>
+                        {isLoading && <Loader className="animate-spin" />}
+                        Save Address
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+                <div className="lg:col-span-1">
+                  <GetLocation
+                    className="h-100"
+                    setPickupLocation={setLocation}
+                  />
+                </div>
               </div>
-              <div className="lg:col-span-1">
-                <GetLocation
-                  className="h-100"
-                  setPickupLocation={setLocation}
-                />
-              </div>
-            </div>
-          </form>
-        </Form>
+            </form>
+          </Form>
+        </div>
       </div>
     </section>
   );

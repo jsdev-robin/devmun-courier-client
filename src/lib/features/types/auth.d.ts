@@ -1,19 +1,62 @@
 export type Role = 'customer' | 'agent' | 'admin';
 
+export interface ISession {
+  token?: string;
+  deviceInfo?: {
+    deviceType?: string;
+    os?: string;
+    browser?: string;
+    userAgent?: string;
+  };
+  ip?: string;
+  location?: {
+    city?: string;
+    country?: string;
+    lat?: number;
+    lng?: number;
+  };
+  loggedInAt?: Date;
+  expiresAt?: Date;
+  revoked?: boolean;
+  revokedAt?: Date;
+  lastActivityAt?: Date;
+  riskScore?: number;
+  trustedDevice?: boolean;
+  status?: boolean;
+}
+
+export interface IAddress {
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  stateDivision: string;
+  zipCode: string;
+  landmark?: string;
+  location?: {
+    lat: number;
+    lng: number;
+  };
+}
+
 export interface IUser {
-  _id: string;
+  _id: ObjectId;
   id: string;
   familyName: string;
   givenName: string;
-  avatar: {
+  displayName: string;
+  avatar?: {
+    public_id: string;
     url: string;
   };
-  displayName: string;
   email: string;
+  password?: string;
+  phone: string;
+  role: Role;
+  address?: IAddress;
+  sessions?: ISession[];
   twoFA: {
     enabled: boolean;
   };
-  role: 'admin' | 'agent' | 'customer';
 }
 
 export interface AuthState {

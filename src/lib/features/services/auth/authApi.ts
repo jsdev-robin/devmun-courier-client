@@ -5,6 +5,7 @@ import {
   Generate2FASetupResponse,
   GetProfileResponse,
   GetSessionsResponse,
+  IAddress,
   ResetPasswordRequest,
   SignupResponse,
   SinginRequest,
@@ -128,6 +129,14 @@ export const userAuthApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['User'],
     }),
+
+    updateAddress: builder.mutation<SinginResponse, IAddress>({
+      query: (data) => ({
+        url: `/auth/me`,
+        method: 'PUT',
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -146,4 +155,5 @@ export const {
   useGenerate2FASetupQuery,
   useVerify2FAOnSignMutation,
   useConfirm2FASetupMutation,
+  useUpdateAddressMutation,
 } = userAuthApi;
