@@ -187,25 +187,21 @@ const GetLiveTrackingMap = ({
   }, [location, agentInfo]);
 
   return (
-    <section>
-      <div className="container">
-        <Card>
-          <CardHeader>
-            <CardTitle>Real-Time Agent Tracking</CardTitle>
-            <CardDescription>
-              View live agent locations worldwide with interactive pulsing
-              markers. Hover over markers to see agent info.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div
-              ref={mapContainerRef}
-              className="w-full h-120 rounded-xl overflow-hidden border border-border"
-            />
-          </CardContent>
-        </Card>
-      </div>
-    </section>
+    <Card>
+      <CardHeader>
+        <CardTitle>Real-Time Agent Tracking</CardTitle>
+        <CardDescription>
+          View live agent locations worldwide with interactive pulsing markers.
+          Hover over markers to see agent info.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div
+          ref={mapContainerRef}
+          className="w-full h-120 rounded-xl overflow-hidden border border-border"
+        />
+      </CardContent>
+    </Card>
   );
 };
 
