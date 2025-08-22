@@ -1,5 +1,5 @@
 import React from 'react';
-import AgentParcelDetails from '@/components/dashboard/agent/pages/parcel/AgentParcelDetails';
+import AgentParcelDetails from '@/components/dashboard/agents/pages/parcel/AgentParcelDetails';
 
 const page = () => {
   return (

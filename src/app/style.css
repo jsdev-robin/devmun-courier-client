@@ -57,3 +57,7 @@
   height: 3px;
   background-color: #3498db;
 }
+
+.gradient-bg {
+  background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+}
