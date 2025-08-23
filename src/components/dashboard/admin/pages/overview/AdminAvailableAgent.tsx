@@ -60,7 +60,7 @@ const AdminAvailableAgent = () => {
         .unwrap()
         .then((res) => res),
       {
-        loading: 'Assgining parcel...',
+        loading: 'Assigning parcel...',
         success: (res) => {
           form.reset();
           return res?.message;
@@ -70,14 +70,11 @@ const AdminAvailableAgent = () => {
     );
   }
 
-  const { data: agentData, isLoading: agentLoading } = useGetAgentByAdminQuery({
-    queryParams: 'fields=familyName givenName avatar',
-  });
-
+  const { data: agentData, isLoading: agentLoading } = useGetAgentByAdminQuery(
+    {},
+  );
   const { data: parcelData, isLoading: parcelLoading } =
-    useGetParcelByAdminQuery({
-      queryParams: 'fields=trackingId&status=booked',
-    });
+    useGetParcelByAdminQuery({});
 
   return (
     <section>
@@ -181,7 +178,10 @@ const AdminAvailableAgent = () => {
                                   value: parcel._id,
                                 })) || []
                               }
-                              disabled={parcelLoading}
+                              disabled={
+                                parcelLoading ||
+                                parcelData?.data.data.length === 0
+                              }
                             />
                           </FormControl>
                           <FormMessage />
@@ -223,9 +223,18 @@ const AdminAvailableAgent = () => {
                         </FormItem>
                       )}
                     />
-                    <Button className="w-full" disabled={isLoading}>
-                      {isLoading && <Loader className="animate-spin" />}Update
-                      Status
+                    <Button
+                      className="w-full"
+                      disabled={isLoading || parcelData?.data.data.length === 0}
+                    >
+                      {isLoading && <Loader className="animate-spin" />}
+                      {parcelData?.data.data.length === 0 ? (
+                        <span className="text-yellow-500">
+                          No parcel booked
+                        </span>
+                      ) : (
+                        <span>Status</span>
+                      )}
                     </Button>
                   </div>
                 </form>

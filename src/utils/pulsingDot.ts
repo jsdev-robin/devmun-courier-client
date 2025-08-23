@@ -9,7 +9,7 @@ interface PulsingDot {
 
 export const createPulsingDot = (
   map: mapboxgl.Map,
-  isBroadcasting: boolean,
+  isBroadcasting: boolean = false,
 ): PulsingDot => {
   const size = 100;
 

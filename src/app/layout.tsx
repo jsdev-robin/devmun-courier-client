@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, Merriweather, Poppins, Roboto } from 'next/font/google';
 import './globals.css';
+import 'mapbox-gl/dist/mapbox-gl.css';
 import './style.css';
 import { Toaster } from 'sonner';
 import { cn } from '../lib/utils';

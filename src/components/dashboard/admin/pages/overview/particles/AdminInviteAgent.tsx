@@ -45,7 +45,7 @@ const AdminInviteAgent = () => {
         .unwrap()
         .then((res) => res),
       {
-        loading: 'Inviting..',
+        loading: 'Inviting...',
         success: (res) => {
           form.reset();
           return res?.message;

@@ -42,6 +42,11 @@ const data = {
       icon: UserLock,
     },
     {
+      title: 'Agents Locaton',
+      url: '/dashboard/admin/agents/location',
+      icon: UserLock,
+    },
+    {
       title: 'Delivery Route',
       url: '/dashboard/admin/delivery-route',
       icon: Route,
