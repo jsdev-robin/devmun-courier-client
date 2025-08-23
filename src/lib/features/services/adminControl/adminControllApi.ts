@@ -6,6 +6,7 @@ import {
   GetQueryParams,
   ParcelResponse,
 } from '../../types/api-response';
+import { ParcelAssginRequest } from '../../types/parcel';
 
 export const adminControllApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -63,6 +64,17 @@ export const adminControllApi = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
+
+    parcelAssginByAdmin: builder.mutation<SuccessResponse, ParcelAssginRequest>(
+      {
+        query: (data) => ({
+          url: `/admin/agent/assign`,
+          method: 'PUT',
+          body: data,
+        }),
+        invalidatesTags: ['Parcel'],
+      },
+    ),
   }),
 });
 
@@ -72,4 +84,5 @@ export const {
   useGetAgentByAdminQuery,
   useAgentInviteByAdminMutation,
   useAgentCreateMutation,
+  useParcelAssginByAdminMutation,
 } = adminControllApi;

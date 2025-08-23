@@ -1,5 +1,12 @@
 import { IUser } from './auth';
 
+export interface ParcelAssginRequest {
+  parcelId: string;
+  agentId: string;
+  priority: string;
+  notes?: string;
+}
+
 export interface Parcel {
   _id: string;
   trackingId: string;
