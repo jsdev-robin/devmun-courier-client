@@ -19,11 +19,13 @@ import {
   Package,
   Truck,
 } from 'lucide-react';
-import { Button } from '../../../../../ui/button';
+import { Button, buttonVariants } from '../../../../../ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '../../../../../ui/badge';
 import { Parcel } from '../../../../../../lib/features/types/parcel';
 import { formatDuration } from '../../../../../../utils/formatDuration';
+import Link from 'next/link';
+import { cn } from '../../../../../../lib/utils';
 
 interface ParcelCardProps {
   item: Parcel;
@@ -82,10 +84,13 @@ const AgentParcelCard: React.FC<ParcelCardProps> = ({ item }) => {
         </div>
       </CardContent>
       <CardFooter className="w-full grid grid-cols-2 gap-3">
-        <Button className="w-full" variant="outline">
+        <Link
+          href={`/dashboard/agent/navigation/${item._id}`}
+          className={cn(buttonVariants({ variant: 'outline' }), 'w-full')}
+        >
           <MapPin />
           View on Map
-        </Button>
+        </Link>
         <Button className="w-full">
           <Edit />
           Update Status
