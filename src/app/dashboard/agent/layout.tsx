@@ -1,5 +1,5 @@
 import React from 'react';
-import AgentDashboardHeader from '../../../components/dashboard/agent/layouts/AgentDashboardHeader';
+import AgentDashboardHeader from '../../../components/ui/dashboard/agent/layouts/AgentDashboardHeader';
 
 const AgentDashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (

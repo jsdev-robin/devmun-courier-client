@@ -1,5 +1,5 @@
 import React from 'react';
-import CustomerDashboardHeader from '../../../components/dashboard/customer/layouts/CustomerDashboardHeader';
+import CustomerDashboardHeader from '../../../components/ui/dashboard/customer/layouts/CustomerDashboardHeader';
 
 const AdminDashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (

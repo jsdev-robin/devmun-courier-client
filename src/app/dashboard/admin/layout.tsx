@@ -4,10 +4,10 @@ import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from '../../../components/ui/sidebar';
-import { Separator } from '../../../components/ui/separator';
+} from '../../../components/ui/ui/sidebar';
+import { Separator } from '../../../components/ui/ui/separator';
 import { cookies } from 'next/headers';
-import { AppSidebar } from '../../../components/dashboard/agents/layouts/app-sidebar';
+import { AppSidebar } from '../../../components/ui/dashboard/agents/layouts/app-sidebar';
 
 const AdminDashboardLayout = async ({
   children,

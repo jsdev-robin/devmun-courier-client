@@ -36,6 +36,10 @@ export const parcelApi = apiSlice.injectEndpoints({
       query: (id) => `customer/parcel/${id}`,
     }),
 
+    getAgentParcelById: builder.query<GetParcelResponse, string>({
+      query: (id) => `customer/parcel/agent/assign/${id}`,
+    }),
+
     getParcelStatusByAgent: builder.query<ParcelStatusResponse, void>({
       query: () => `customer/parcel/agent/status-counts`,
     }),
@@ -50,6 +54,7 @@ export const {
   useCreateCustomerBookParcelMutation,
   useGetCustomerParcelsQuery,
   useGetCustomerParcelByIdQuery,
+  useGetAgentParcelByIdQuery,
   useGetParcelStatusByAgentQuery,
   useGetAgentParcelsQuery,
 } = parcelApi;

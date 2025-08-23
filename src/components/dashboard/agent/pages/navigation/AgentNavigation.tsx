@@ -28,11 +28,10 @@ interface DirectionsWithEvents extends MapboxDirections {
   on: (event: 'route', callback: (e: RouteEvent) => void) => void;
 }
 
-const AgentNavigation = () => {
+const AgentNavigation = ({ id }: { id: string }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const directions = useRef<DirectionsWithEvents | null>(null);
-
   const [duration, setDuration] = useState<number | null>(null);
   const [distance, setDistance] = useState<number | null>(null);
   const [steps, setSteps] = useState<
@@ -42,6 +41,8 @@ const AgentNavigation = () => {
       duration: number;
     }[]
   >([]);
+
+  console.log(id);
 
   useEffect(() => {
     if (map.current) return;
