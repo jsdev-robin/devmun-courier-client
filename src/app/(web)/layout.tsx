@@ -1,8 +1,8 @@
 import React from 'react';
 import Header from '@/components/layouts/Header';
-import Footer from '../../components/ui/layouts/Footer';
 import getAdminAgentDal from '../../dal/getAdminAgentDal';
 import getCustomerDal from '../../dal/getCustomerDal';
+import Footer from '../../components/layouts/Footer';
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const agent = await getAdminAgentDal();

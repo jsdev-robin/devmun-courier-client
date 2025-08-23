@@ -1,13 +1,12 @@
 import React from 'react';
-
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from '../../../components/ui/ui/sidebar';
-import { Separator } from '../../../components/ui/ui/separator';
+} from '../../../components/ui/sidebar';
 import { cookies } from 'next/headers';
-import { AppSidebar } from '../../../components/ui/dashboard/agents/layouts/app-sidebar';
+import { AppSidebar } from '../../../components/dashboard/admin/layouts/app-sidebar';
+import { Separator } from '../../../components/ui/separator';
 
 const AdminDashboardLayout = async ({
   children,

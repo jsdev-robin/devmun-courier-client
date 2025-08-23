@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import AgentNavigation from '../../../../../components/ui/dashboard/agent/pages/navigation/AgentNavigation';
 import { useParams } from 'next/navigation';
+import AgentNavigation from '../../../../../components/dashboard/agent/pages/navigation/AgentNavigation';
 
 const AgentNavigationPage = () => {
   const params = useParams<{ id: string }>();

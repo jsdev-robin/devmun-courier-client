@@ -1,13 +1,11 @@
 import React from 'react';
-import AgentOverviewHeader from '../../../../components/ui/dashboard/agent/pages/overview/AgentOverviewHeader';
-import AgentOverviewStats from '../../../../components/ui/dashboard/agent/pages/overview/AgentOverviewStats';
-import AgentAssignedParcels from '../../../../components/ui/dashboard/agent/pages/overview/AgentAssignedParcels';
+import AgentOverviewHeader from '../../../../components/dashboard/agent/pages/overview/AgentOverviewHeader';
+import AgentAssignedParcels from '../../../../components/dashboard/agents/pages/overview/AgentAssignedParcels';
 
 const AgentOverviewPage = () => {
   return (
     <>
       <AgentOverviewHeader />
-      <AgentOverviewStats />
       <AgentAssignedParcels />
     </>
   );
