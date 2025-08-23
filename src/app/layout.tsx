@@ -5,6 +5,7 @@ import './style.css';
 import { Toaster } from 'sonner';
 import { cn } from '../lib/utils';
 import StoreProvider from './StoreProvider';
+import { ThemeProvider } from '../contexts/theme-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -90,8 +91,15 @@ export default function RootLayout({
         )}
       >
         <StoreProvider>
-          {children}
-          <Toaster position="bottom-right" richColors />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <Toaster position="bottom-right" richColors />
+          </ThemeProvider>
         </StoreProvider>
       </body>
     </html>

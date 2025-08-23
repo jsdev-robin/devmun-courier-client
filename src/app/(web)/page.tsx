@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
-import HomHero from '../../components/home/HomHero';
-import HomeWhyChoose from '../../components/home/HomeWhyChoose';
-import HomeHowItWork from '../../components/home/HomeHowItWork';
-import HomeCTA from '../../components/home/HomeCTA';
+import HomHero from '../../components/pages/home/HomHero';
+import HomeWhyChoose from '../../components/pages/home/HomeWhyChoose';
+import HomeHowItWork from '../../components/pages/home/HomeHowItWork';
+import HomeCTA from '../../components/pages/home/HomeCTA';
 
 const HomePage = () => {
   return (

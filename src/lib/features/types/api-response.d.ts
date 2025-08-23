@@ -23,3 +23,4 @@ export interface PaginatedResponse<T> {
 
 export type ParcelResponse = PaginatedResponse<Parcel>;
 export type CustomerResponse = PaginatedResponse<IUser>;
+export type AgentResponse = PaginatedResponse<IUser>;

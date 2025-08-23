@@ -1,7 +1,12 @@
 import React from 'react';
+import AdminAgentList from '../../../../components/dashboard/admin/pages/agent/AdminAgentList';
 
-const page = () => {
-  return <div>page</div>;
+const AdminAgentListPage = () => {
+  return (
+    <>
+      <AdminAgentList />
+    </>
+  );
 };
 
-export default page;
+export default AdminAgentListPage;
