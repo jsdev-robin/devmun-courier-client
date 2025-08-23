@@ -2,6 +2,8 @@
 @import 'tw-animate-css';
 @plugin "@tailwindcss/forms";
 
+@config "../../tailwind.config.ts";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

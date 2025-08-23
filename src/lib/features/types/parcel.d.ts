@@ -1,20 +1,8 @@
 import { IUser } from './auth';
 
-export interface ParcelRequest {
-  receiverName: string;
-  receiverPhone: string;
-  pickupAddress: string;
-  deliveryAddress: string;
-  parcelType: string;
-  parcelSize: string;
-  paymentMethod: string;
-  codAmount: string | number;
-}
-
 export interface Parcel {
   _id: string;
   trackingId: string;
-  customer: IUser;
   receiverName: string;
   receiverPhone: string;
   pickupAddress: string;
@@ -32,5 +20,6 @@ export interface Parcel {
   createdAt: string;
   updatedAt: string;
   __v: number;
+  customer: IUser;
   agent: IUser;
 }

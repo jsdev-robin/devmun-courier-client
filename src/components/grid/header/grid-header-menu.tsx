@@ -29,7 +29,7 @@ const GridHeaderMenu = <T,>({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
-          variant="secondary"
+          variant="outline"
           size="icon"
           disabled={isError || isLoading}
           className={cn(

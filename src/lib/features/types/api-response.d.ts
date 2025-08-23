@@ -1,4 +1,5 @@
 import { PaginationState } from '@tanstack/react-table';
+import { IUser } from './auth';
 import { Parcel } from './parcel';
 
 export type GetQueryParams = {
@@ -8,30 +9,17 @@ export type GetQueryParams = {
   globalFilter?: string;
 };
 
-interface GetParcelResponse {
-  status: 'success';
-  message: string;
-  parcel: Parcel;
-}
-
-type ParcelStatus =
-  | 'booked'
-  | 'picked_up'
-  | 'in_transit'
-  | 'delivered'
-  | 'failed';
-
-interface StatusCount {
-  _id: ParcelStatus;
-  count: number;
-}
-
 export interface PaginatedResponse<T> {
   status: 'success';
   message: string;
-  data: T[];
+  data: {
+    data: T[];
+    total: number;
+    page: number;
+    pageSize: number;
+  };
   total: number;
 }
 
 export type ParcelResponse = PaginatedResponse<Parcel>;
-export type ParcelStatusResponse = PaginatedResponse<StatusCount>;
+export type CustomerResponse = PaginatedResponse<IUser>;

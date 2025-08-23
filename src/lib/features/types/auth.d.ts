@@ -49,7 +49,6 @@ export interface IUser {
     url: string;
   };
   email: string;
-  password?: string;
   phone: string;
   role: Role;
   address?: IAddress;
