@@ -1,31 +1,26 @@
+'use client';
+
 import React from 'react';
 import Heading from '../../../../ui/heading';
 import { Button } from '../../../../ui/button';
-import {
-  AlertCircle,
-  Banknote,
-  Edit,
-  Filter,
-  MapPin,
-  Package,
-  SortAsc,
-  Truck,
-} from 'lucide-react';
+import { Filter, SortAsc } from 'lucide-react';
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from '../../../../ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '../../../../ui/badge';
+
 import AgentDeliveryRoute from './particles/AgentDeliveryRoute';
 import AgentUpdateParcelStatus from './particles/AgentUpdateParcelStatus';
+import { useGetAgentParcelsQuery } from '../../../../../lib/features/services/parcel/parcelApi';
+import { Skeleton } from '../../../../ui/skeleton';
+import AgentParcelCard from './particles/AgentParcelCard';
 
 const AgentAssignedParcels = () => {
+  const { data, isLoading, isError } = useGetAgentParcelsQuery();
+
   return (
     <section>
       <div className="container">
@@ -45,156 +40,35 @@ const AgentAssignedParcels = () => {
                   </Button>
                 </div>
               </div>
-              <Card className="border-l-4 gap-4 border-l-green-600">
-                <CardHeader>
-                  <CardTitle>#TRK789012 - Sarah Johnson</CardTitle>
-                  <CardDescription>
-                    <div className="flex items-center gap-1.5">
-                      <MapPin className="size-4" />
-                      <span>456 Oak Avenue, Chittagong - 12.5 km away</span>
-                    </div>
-                  </CardDescription>
-                  <CardAction className="flex items-center gap-2">
-                    <Badge>
-                      <AlertCircle />
-                      Priority
-                    </Badge>
-                    <Avatar>
-                      <AvatarImage
-                        src="https://github.com/shadcn.png"
-                        alt="@shadcn"
-                      />
-                      <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                  </CardAction>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-3">
-                    <Badge className="rounded-full py-1.5 bg-yellow-500/25 text-yellow-800">
-                      <Truck />
-                      In Transit
-                    </Badge>
-                    <Badge className="rounded-full py-1.5 bg-blue-500/25 text-blue-800">
-                      <Banknote />
-                      COD: ৳ 1,250
-                    </Badge>
-                    <Badge className="rounded-full py-1.5 bg-violet-500/25 text-violet-800">
-                      <Package />
-                      Medium Package
-                    </Badge>
-                  </div>
-                </CardContent>
-                <CardFooter className="w-full grid grid-cols-2 gap-3">
-                  <Button className="w-full" variant="outline">
-                    <MapPin />
-                    View on Map
-                  </Button>
-                  <Button className="w-full">
-                    <Edit />
-                    Update Status
-                  </Button>
-                </CardFooter>
-              </Card>
-              <Card className="border-l-4 gap-4 border-l-green-600">
-                <CardHeader>
-                  <CardTitle>#TRK789012 - Sarah Johnson</CardTitle>
-                  <CardDescription>
-                    <div className="flex items-center gap-1.5">
-                      <MapPin className="size-4" />
-                      <span>456 Oak Avenue, Chittagong - 12.5 km away</span>
-                    </div>
-                  </CardDescription>
-                  <CardAction className="flex items-center gap-2">
-                    <Badge>
-                      <AlertCircle />
-                      Priority
-                    </Badge>
-                    <Avatar>
-                      <AvatarImage
-                        src="https://github.com/shadcn.png"
-                        alt="@shadcn"
-                      />
-                      <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                  </CardAction>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-3">
-                    <Badge className="rounded-full py-1.5 bg-yellow-500/25 text-yellow-800">
-                      <Truck />
-                      In Transit
-                    </Badge>
-                    <Badge className="rounded-full py-1.5 bg-blue-500/25 text-blue-800">
-                      <Banknote />
-                      COD: ৳ 1,250
-                    </Badge>
-                    <Badge className="rounded-full py-1.5 bg-violet-500/25 text-violet-800">
-                      <Package />
-                      Medium Package
-                    </Badge>
-                  </div>
-                </CardContent>
-                <CardFooter className="w-full grid grid-cols-2 gap-3">
-                  <Button className="w-full" variant="outline">
-                    <MapPin />
-                    View on Map
-                  </Button>
-                  <Button className="w-full">
-                    <Edit />
-                    Update Status
-                  </Button>
-                </CardFooter>
-              </Card>
-              <Card className="border-l-4 gap-4 border-l-green-600">
-                <CardHeader>
-                  <CardTitle>#TRK789012 - Sarah Johnson</CardTitle>
-                  <CardDescription>
-                    <div className="flex items-center gap-1.5">
-                      <MapPin className="size-4" />
-                      <span>456 Oak Avenue, Chittagong - 12.5 km away</span>
-                    </div>
-                  </CardDescription>
-                  <CardAction className="flex items-center gap-2">
-                    <Badge>
-                      <AlertCircle />
-                      Priority
-                    </Badge>
-                    <Avatar>
-                      <AvatarImage
-                        src="https://github.com/shadcn.png"
-                        alt="@shadcn"
-                      />
-                      <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                  </CardAction>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-3">
-                    <Badge className="rounded-full py-1.5 bg-yellow-500/25 text-yellow-800">
-                      <Truck />
-                      In Transit
-                    </Badge>
-                    <Badge className="rounded-full py-1.5 bg-blue-500/25 text-blue-800">
-                      <Banknote />
-                      COD: ৳ 1,250
-                    </Badge>
-                    <Badge className="rounded-full py-1.5 bg-violet-500/25 text-violet-800">
-                      <Package />
-                      Medium Package
-                    </Badge>
-                  </div>
-                </CardContent>
-                <CardFooter className="w-full grid grid-cols-2 gap-3">
-                  <Button className="w-full" variant="outline">
-                    <MapPin />
-                    View on Map
-                  </Button>
-                  <Button className="w-full">
-                    <Edit />
-                    Update Status
-                  </Button>
-                </CardFooter>
-              </Card>
+              {isError ? (
+                <div>dfd</div>
+              ) : isLoading ? (
+                [...Array(4)].map((_, i) => (
+                  <Card key={i}>
+                    <CardHeader>
+                      <Skeleton className="h-4 w-40" />
+                      <CardDescription>
+                        <Skeleton className="h-3 w-56 mt-2" />
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex gap-2">
+                        <Skeleton className="h-6 w-20" />
+                        <Skeleton className="h-6 w-24" />
+                        <Skeleton className="h-6 w-28" />
+                      </div>
+                    </CardContent>
+                    <CardFooter className="grid grid-cols-2 gap-3">
+                      <Skeleton className="h-9" />
+                      <Skeleton className="h-9" />
+                    </CardFooter>
+                  </Card>
+                ))
+              ) : (
+                data?.data.map((item, i) => (
+                  <AgentParcelCard key={i} item={item} />
+                ))
+              )}
             </div>
           </div>
           <div className="lg:col-span-1">

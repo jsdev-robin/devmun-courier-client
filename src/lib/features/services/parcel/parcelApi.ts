@@ -4,6 +4,7 @@ import {
   GetParcelResponse,
   GetQueryParams,
   ParcelResponse,
+  ParcelStatusResponse,
 } from '../../types/api-response';
 import { ParcelRequest } from '../../types/parcel';
 
@@ -34,6 +35,14 @@ export const parcelApi = apiSlice.injectEndpoints({
     getCustomerParcelById: builder.query<GetParcelResponse, string>({
       query: (id) => `customer/parcel/${id}`,
     }),
+
+    getParcelStatusByAgent: builder.query<ParcelStatusResponse, void>({
+      query: () => `customer/parcel/agent/status-counts`,
+    }),
+
+    getAgentParcels: builder.query<ParcelResponse, void>({
+      query: () => 'customer/parcel/agent/assign',
+    }),
   }),
 });
 
@@ -41,4 +50,6 @@ export const {
   useCreateCustomerBookParcelMutation,
   useGetCustomerParcelsQuery,
   useGetCustomerParcelByIdQuery,
+  useGetParcelStatusByAgentQuery,
+  useGetAgentParcelsQuery,
 } = parcelApi;

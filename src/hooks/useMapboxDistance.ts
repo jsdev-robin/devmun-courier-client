@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useEffect, useState } from 'react';
 
 interface UseDistanceResult {
   distance: number | null;
@@ -34,8 +34,6 @@ export const useMapboxDistance = (
             },
           },
         );
-
-        console.log(response);
 
         const route = response.data.routes[0];
         setDistance(route.distance);

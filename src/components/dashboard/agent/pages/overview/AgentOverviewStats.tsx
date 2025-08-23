@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Card, CardContent } from '../../../../ui/card';
 import { Banknote, Clock, Package2, Truck } from 'lucide-react';
@@ -5,6 +7,8 @@ import Typography from '../../../../ui/typography';
 import Heading from '../../../../ui/heading';
 
 const AgentOverviewState = () => {
+  // const { data } = useGetParcelStatusByAgentQuery();
+
   return (
     <section>
       <div className="container">

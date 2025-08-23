@@ -1,4 +1,4 @@
-import { IAddress, IUser } from './auth';
+import { IUser } from './auth';
 
 export interface ParcelRequest {
   receiverName: string;
@@ -12,13 +12,16 @@ export interface ParcelRequest {
 }
 
 export interface Parcel {
-  pickupLocation: IAddress;
   _id: string;
   trackingId: string;
   customer: IUser;
   receiverName: string;
   receiverPhone: string;
   pickupAddress: string;
+  pickupLocation: {
+    lat: number;
+    lng: number;
+  };
   deliveryAddress: string;
   parcelSize: string;
   parcelType: string;

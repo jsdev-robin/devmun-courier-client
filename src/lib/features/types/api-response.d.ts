@@ -13,6 +13,19 @@ interface GetParcelResponse {
   message: string;
   parcel: Parcel;
 }
+
+type ParcelStatus =
+  | 'booked'
+  | 'picked_up'
+  | 'in_transit'
+  | 'delivered'
+  | 'failed';
+
+interface StatusCount {
+  _id: ParcelStatus;
+  count: number;
+}
+
 export interface PaginatedResponse<T> {
   status: 'success';
   message: string;
@@ -21,3 +34,4 @@ export interface PaginatedResponse<T> {
 }
 
 export type ParcelResponse = PaginatedResponse<Parcel>;
+export type ParcelStatusResponse = PaginatedResponse<StatusCount>;
