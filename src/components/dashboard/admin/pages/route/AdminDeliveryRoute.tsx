@@ -12,7 +12,9 @@ import {
 import { useGetParcelByAdminQuery } from '../../../../../lib/features/services/adminControl/adminControllApi';
 
 const AdminDeliveryRoute = () => {
-  const { data } = useGetParcelByAdminQuery({});
+  const { data } = useGetParcelByAdminQuery({
+    queryParams: 'status[ne]=delivered',
+  });
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
 
