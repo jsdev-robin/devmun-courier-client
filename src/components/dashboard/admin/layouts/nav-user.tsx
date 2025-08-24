@@ -1,10 +1,11 @@
 'use client';
 
-import { ChevronsUpDown, LogOut } from 'lucide-react';
+import { ChevronsUpDown, LogOut, ShieldIcon } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -19,11 +20,13 @@ import {
 import { toast } from 'sonner';
 import { useSignoutMutation } from '../../../../lib/features/services/auth/authApi';
 import useUser from '../../../../guard/useUser';
+import { useRouter } from 'next/navigation';
 
 export function NavUser() {
   const { isMobile } = useSidebar();
   const [signout, { isLoading }] = useSignoutMutation();
   const user = useUser();
+  const router = useRouter();
 
   const handleLogout = async () => {
     await toast.promise(signout().unwrap(), {
@@ -82,6 +85,14 @@ export function NavUser() {
                 </div>
               </div>
             </DropdownMenuLabel>
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                onClick={() => router.push('/dashboard/admin//security')}
+              >
+                <ShieldIcon />
+                Security
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} disabled={isLoading}>
               <LogOut />
