@@ -58,6 +58,19 @@ const GetLiveTrackingMap = ({
     },
   });
 
+  // Dummy sender location
+  const [senderLocation] = useState({
+    lat: 23.7949, // Example: Near Dhaka, Bangladesh
+    lng: 90.4036,
+    info: {
+      name: 'Sender Location',
+      status: 'Parcel picked up',
+      eta: 'N/A',
+      vehicle: 'N/A',
+      speed: 'N/A',
+    },
+  });
+
   // Initialize map only once
   useEffect(() => {
     if (!mapContainerRef.current) return;
@@ -85,33 +98,12 @@ const GetLiveTrackingMap = ({
       // Add pulsing dot for agent
       map.addImage('pulsing-dot', pulsingDot, { pixelRatio: 2 });
 
-      // Use Mapbox's default marker for parcel location
-      // No need to load a custom image
-
       // Source for agent location
       map.addSource('agent-point', {
         type: 'geojson',
         data: {
           type: 'FeatureCollection',
           features: [],
-        },
-      });
-
-      // Source for parcel location
-      map.addSource('parcel-point', {
-        type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: [
-            {
-              type: 'Feature',
-              geometry: {
-                type: 'Point',
-                coordinates: [parcelLocation.lng, parcelLocation.lat],
-              },
-              properties: parcelLocation.info,
-            },
-          ],
         },
       });
 
@@ -126,7 +118,7 @@ const GetLiveTrackingMap = ({
         },
       });
 
-      // Add a marker for the parcel location using Mapbox's default marker
+      // Add a marker for the parcel destination using Mapbox's default marker (red)
       new mapboxgl.Marker({ color: '#FF0000' })
         .setLngLat([parcelLocation.lng, parcelLocation.lat])
         .setPopup(
@@ -135,6 +127,19 @@ const GetLiveTrackingMap = ({
                 <h3 class="font-bold text-sm">${parcelLocation.info.name}</h3>
                 <p class="text-xs"><strong>Status:</strong> ${parcelLocation.info.status}</p>
                 <p class="text-xs"><strong>ETA:</strong> ${parcelLocation.info.eta}</p>
+              </div>`,
+          ),
+        )
+        .addTo(map);
+
+      // Add a marker for the sender location using a different color (blue)
+      new mapboxgl.Marker({ color: '#0066FF' })
+        .setLngLat([senderLocation.lng, senderLocation.lat])
+        .setPopup(
+          new mapboxgl.Popup({ offset: 25 }).setHTML(
+            `<div class="p-2">
+                <h3 class="font-bold text-sm">${senderLocation.info.name}</h3>
+                <p class="text-xs"><strong>Status:</strong> ${senderLocation.info.status}</p>
               </div>`,
           ),
         )
@@ -174,7 +179,7 @@ const GetLiveTrackingMap = ({
     return () => {
       map.remove();
     };
-  }, [isBroadcasting, parcelLocation]);
+  }, [isBroadcasting, parcelLocation, senderLocation]);
 
   // Socket listener
   useEffect(() => {
