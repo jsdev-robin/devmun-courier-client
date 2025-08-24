@@ -80,20 +80,10 @@ const GetLiveTrackingMap = ({
     popupRef.current = popup;
 
     const pulsingDot = createPulsingDot(map, isBroadcasting);
+
     map.on('load', () => {
       // Add pulsing dot for agent
       map.addImage('pulsing-dot', pulsingDot, { pixelRatio: 2 });
-
-      // Add package icon for parcel
-      map.loadImage(
-        'https://cdn-icons-png.flaticon.com/512/3502/3502689.png',
-        (error, image) => {
-          if (error) throw error;
-          if (image) {
-            map.addImage('parcel-icon', image, { pixelRatio: 2 });
-          }
-        },
-      );
 
       // Source for agent location
       map.addSource('agent-point', {
@@ -101,24 +91,6 @@ const GetLiveTrackingMap = ({
         data: {
           type: 'FeatureCollection',
           features: [],
-        },
-      });
-
-      // Source for parcel location
-      map.addSource('parcel-point', {
-        type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: [
-            {
-              type: 'Feature',
-              geometry: {
-                type: 'Point',
-                coordinates: [parcelLocation.lng, parcelLocation.lat],
-              },
-              properties: parcelLocation.info,
-            },
-          ],
         },
       });
 
@@ -133,54 +105,49 @@ const GetLiveTrackingMap = ({
         },
       });
 
-      // Layer for parcel
-      map.addLayer({
-        id: 'parcel-points',
-        type: 'symbol',
-        source: 'parcel-point',
-        layout: {
-          'icon-image': 'parcel-icon',
-          'icon-size': 0.08,
-        },
+      // Add a marker for the parcel location using Mapbox's default marker
+      new mapboxgl.Marker({ color: '#FF0000' })
+        .setLngLat([parcelLocation.lng, parcelLocation.lat])
+        .setPopup(
+          new mapboxgl.Popup({ offset: 25 }).setHTML(
+            `<div class="p-2">
+                <h3 class="font-bold text-sm">${parcelLocation.info.name}</h3>
+                <p class="text-xs"><strong>Status:</strong> ${parcelLocation.info.status}</p>
+                <p class="text-xs"><strong>ETA:</strong> ${parcelLocation.info.eta}</p>
+              </div>`,
+          ),
+        )
+        .addTo(map);
+
+      // Add event handlers for agent layer
+      map.on('mouseenter', 'agent-points', (e) => {
+        if (e.features && e.features.length > 0) {
+          const feature = e.features[0];
+          const geometry = feature.geometry as PointGeometry;
+          const coordinates = geometry.coordinates.slice() as [number, number];
+          const properties = feature.properties || {};
+
+          popup
+            .setLngLat(coordinates)
+            .setHTML(
+              `<div class="p-2">
+                <h3 class="font-bold text-sm">${properties.name}</h3>
+                <p class="text-xs"><strong>Status:</strong> ${properties.status}</p>
+                <p class="text-xs"><strong>ETA:</strong> ${properties.eta}</p>
+                <p class="text-xs"><strong>Vehicle:</strong> ${properties.vehicle}</p>
+                <p class="text-xs"><strong>Speed:</strong> ${properties.speed}</p>
+              </div>`,
+            )
+            .addTo(map);
+
+          map.getCanvas().style.cursor = 'pointer';
+        }
       });
 
-      // Add event handlers for both layers
-      const addPopupHandlers = (layerId: string) => {
-        map.on('mouseenter', layerId, (e) => {
-          if (e.features && e.features.length > 0) {
-            const feature = e.features[0];
-            const geometry = feature.geometry as PointGeometry;
-            const coordinates = geometry.coordinates.slice() as [
-              number,
-              number,
-            ];
-            const properties = feature.properties || {};
-
-            popup
-              .setLngLat(coordinates)
-              .setHTML(
-                `<div class="p-2">
-                  <h3 class="font-bold text-sm">${properties.name}</h3>
-                  <p class="text-xs"><strong>Status:</strong> ${properties.status}</p>
-                  <p class="text-xs"><strong>ETA:</strong> ${properties.eta}</p>
-                  <p class="text-xs"><strong>Vehicle:</strong> ${properties.vehicle}</p>
-                  <p class="text-xs"><strong>Speed:</strong> ${properties.speed}</p>
-                </div>`,
-              )
-              .addTo(map);
-
-            map.getCanvas().style.cursor = 'pointer';
-          }
-        });
-
-        map.on('mouseleave', layerId, () => {
-          popup.remove();
-          map.getCanvas().style.cursor = '';
-        });
-      };
-
-      addPopupHandlers('agent-points');
-      addPopupHandlers('parcel-points');
+      map.on('mouseleave', 'agent-points', () => {
+        popup.remove();
+        map.getCanvas().style.cursor = '';
+      });
     });
 
     return () => {
@@ -245,7 +212,7 @@ const GetLiveTrackingMap = ({
       ],
     });
 
-    // smoothly move camera
+    // smoothly move camera to agent location
     map.flyTo({
       center: [location.lng, location.lat],
       zoom: 12,
