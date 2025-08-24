@@ -32,7 +32,7 @@ export interface IAddress {
   stateDivision: string;
   zipCode: string;
   landmark?: string;
-  location?: {
+  location: {
     lat: number;
     lng: number;
   };
@@ -51,11 +51,12 @@ export interface IUser {
   email: string;
   phone: string;
   role: Role;
-  address?: IAddress;
+  address: IAddress;
   sessions?: ISession[];
   twoFA: {
     enabled: boolean;
   };
+  vehicleType?: string;
 }
 
 export interface AuthState {

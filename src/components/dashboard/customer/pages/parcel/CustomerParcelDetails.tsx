@@ -25,6 +25,8 @@ const CustomerParcelDetails = ({ id }: { id: string }) => {
 
   if (isLoading) return <ParcelDetailsSekeleton />;
 
+  console.log(data);
+
   return (
     <section>
       <div className="container">
@@ -203,6 +205,11 @@ const CustomerParcelDetails = ({ id }: { id: string }) => {
                     id={data?.data.parcel.agent._id}
                     status={data?.data.parcel.status}
                     name={data?.data.parcel.agent.displayName}
+                    vehicleType={data?.data.parcel.agent.vehicleType}
+                    parcelLocation={data?.data.parcel.pickupLocation}
+                    receiverName={data?.data.parcel.receiverName}
+                    senderLocation={data?.data.parcel.customer.address.location}
+                    senderName={data?.data.parcel.customer.displayName}
                   />
                   <Card>
                     <CardHeader>

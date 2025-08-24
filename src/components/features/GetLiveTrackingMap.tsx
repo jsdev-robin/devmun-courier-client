@@ -24,10 +24,20 @@ const GetLiveTrackingMap = ({
   id,
   name,
   status,
+  vehicleType,
+  parcelLocation,
+  receiverName,
+  senderLocation,
+  senderName,
 }: {
   id: string;
   status?: string;
   name?: string;
+  vehicleType?: string;
+  parcelLocation: { lat: number; lng: number };
+  receiverName: string;
+  senderLocation: { lat: number; lng: number };
+  senderName: string;
 }) => {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
     null,
@@ -44,32 +54,6 @@ const GetLiveTrackingMap = ({
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const popupRef = useRef<mapboxgl.Popup | null>(null);
-
-  // Dummy parcel location
-  const [parcelLocation] = useState({
-    lat: 23.8103, // Example: Dhaka, Bangladesh
-    lng: 90.4125,
-    info: {
-      name: 'Parcel Destination',
-      status: 'Waiting for delivery',
-      eta: '25 minutes',
-      vehicle: 'N/A',
-      speed: 'N/A',
-    },
-  });
-
-  // Dummy sender location
-  const [senderLocation] = useState({
-    lat: 23.7949, // Example: Near Dhaka, Bangladesh
-    lng: 90.4036,
-    info: {
-      name: 'Sender Location',
-      status: 'Parcel picked up',
-      eta: 'N/A',
-      vehicle: 'N/A',
-      speed: 'N/A',
-    },
-  });
 
   // Initialize map only once
   useEffect(() => {
@@ -124,9 +108,9 @@ const GetLiveTrackingMap = ({
         .setPopup(
           new mapboxgl.Popup({ offset: 25 }).setHTML(
             `<div class="p-2">
-                <h3 class="font-bold text-sm">${parcelLocation.info.name}</h3>
-                <p class="text-xs"><strong>Status:</strong> ${parcelLocation.info.status}</p>
-                <p class="text-xs"><strong>ETA:</strong> ${parcelLocation.info.eta}</p>
+                <h3 class="font-bold text-sm">Parcel Destination</h3>
+                <h3 class="font-bold text-sm">${receiverName}</h3>
+                <p class="text-xs"><strong>Status:</strong> Waiting for delivery</p>
               </div>`,
           ),
         )
@@ -138,8 +122,8 @@ const GetLiveTrackingMap = ({
         .setPopup(
           new mapboxgl.Popup({ offset: 25 }).setHTML(
             `<div class="p-2">
-                <h3 class="font-bold text-sm">${senderLocation.info.name}</h3>
-                <p class="text-xs"><strong>Status:</strong> ${senderLocation.info.status}</p>
+                <h3 class="font-bold text-sm">Sender Location</h3>
+                <p class="text-xs"><strong>Name:</strong> ${senderName}</p>
               </div>`,
           ),
         )
@@ -158,9 +142,8 @@ const GetLiveTrackingMap = ({
             .setHTML(
               `<div class="p-2">
                 <h3 class="font-bold text-sm">${properties.name}</h3>
-                <p class="text-xs"><strong>Status:</strong> ${properties.status}</p>
-                <p class="text-xs"><strong>ETA:</strong> ${properties.eta}</p>
-                <p class="text-xs"><strong>Vehicle:</strong> ${properties.vehicle}</p>
+                <p class="text-xs capitalize"><strong>Status:</strong> ${properties.status}</p>
+                <p class="text-xs"><strong>Vehicle:</strong> ${vehicleType}</p>
                 <p class="text-xs"><strong>Speed:</strong> ${properties.speed}</p>
               </div>`,
             )
@@ -179,7 +162,14 @@ const GetLiveTrackingMap = ({
     return () => {
       map.remove();
     };
-  }, [isBroadcasting, parcelLocation, senderLocation]);
+  }, [
+    isBroadcasting,
+    parcelLocation,
+    receiverName,
+    senderLocation,
+    senderName,
+    vehicleType,
+  ]);
 
   // Socket listener
   useEffect(() => {

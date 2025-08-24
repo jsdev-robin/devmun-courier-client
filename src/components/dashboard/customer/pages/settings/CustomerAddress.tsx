@@ -74,7 +74,9 @@ const AddressSchema = z.object({
       lat: z.number(),
       lng: z.number(),
     })
-    .optional(),
+    .refine((loc) => loc.lat !== 0 && loc.lng !== 0, {
+      message: 'Location is required. Please select your location.',
+    }),
 });
 
 const CustomerAddress = () => {
@@ -94,6 +96,10 @@ const CustomerAddress = () => {
       stateDivision: user?.address?.stateDivision ?? '',
       zipCode: user?.address?.zipCode ?? '',
       landmark: user?.address?.landmark ?? '',
+      location: {
+        lat: user?.address.location.lat ?? 0,
+        lng: user?.address.location.lng ?? 0,
+      },
     },
   });
 
@@ -252,10 +258,19 @@ const CustomerAddress = () => {
                   </Card>
                 </div>
                 <div className="lg:col-span-1">
-                  <GetLocation
-                    className="h-100"
-                    setPickupLocation={setLocation}
-                    defaultLocation={user?.address?.location}
+                  <FormField
+                    control={form.control}
+                    name="location"
+                    render={() => (
+                      <FormItem>
+                        <GetLocation
+                          className="h-100"
+                          setPickupLocation={setLocation}
+                          defaultLocation={user?.address?.location}
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
               </div>

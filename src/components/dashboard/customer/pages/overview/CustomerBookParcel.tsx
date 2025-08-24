@@ -40,7 +40,9 @@ const parcelBookingSchema = z.object({
       lat: z.number(),
       lng: z.number(),
     })
-    .optional(),
+    .refine((loc) => loc.lat !== undefined && loc.lng !== undefined, {
+      message: 'Location is required. Please select location.',
+    }),
 });
 
 const CustomerBookParcel = () => {
@@ -258,7 +260,19 @@ const CustomerBookParcel = () => {
                     </Card>
                   </div>
                   <div className="xl:col-span-2 h-full">
-                    <GetLocation setPickupLocation={setPickupLocation} />
+                    <FormField
+                      control={form.control}
+                      name="pickupLocation"
+                      render={() => (
+                        <FormItem>
+                          <GetLocation
+                            className="h-109"
+                            setPickupLocation={setPickupLocation}
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 </div>
                 <div className="flex justify-center">
