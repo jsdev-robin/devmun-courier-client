@@ -45,8 +45,9 @@ const GetLiveTrackingMap = ({
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const popupRef = useRef<mapboxgl.Popup | null>(null);
 
+  // Dummy parcel location
   const [parcelLocation] = useState({
-    lat: 23.8103,
+    lat: 23.8103, // Example: Dhaka, Bangladesh
     lng: 90.4125,
     info: {
       name: 'Parcel Destination',
@@ -57,6 +58,7 @@ const GetLiveTrackingMap = ({
     },
   });
 
+  // Initialize map only once
   useEffect(() => {
     if (!mapContainerRef.current) return;
     mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_API_KEY;
@@ -80,18 +82,21 @@ const GetLiveTrackingMap = ({
 
     const pulsingDot = createPulsingDot(map, isBroadcasting);
     map.on('load', () => {
+      // Add pulsing dot for agent
       map.addImage('pulsing-dot', pulsingDot, { pixelRatio: 2 });
 
+      // Add map pin icon for parcel
       map.loadImage(
-        'https://cdn-icons-png.flaticon.com/512/684/684908.png',
+        'https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png',
         (error, image) => {
           if (error) throw error;
           if (image) {
-            map.addImage('parcel-pin', image, { pixelRatio: 2 });
+            map.addImage('parcel-pin', image);
           }
         },
       );
 
+      // Source for agent location
       map.addSource('agent-point', {
         type: 'geojson',
         data: {
@@ -100,6 +105,7 @@ const GetLiveTrackingMap = ({
         },
       });
 
+      // Source for parcel location
       map.addSource('parcel-point', {
         type: 'geojson',
         data: {
@@ -117,26 +123,29 @@ const GetLiveTrackingMap = ({
         },
       });
 
+      // Layer for agent
       map.addLayer({
         id: 'agent-points',
         type: 'symbol',
         source: 'agent-point',
         layout: {
           'icon-image': 'pulsing-dot',
-          'icon-size': 1,
+          'icon-size': 1, // Default size
         },
       });
 
+      // Layer for parcel
       map.addLayer({
         id: 'parcel-points',
         type: 'symbol',
         source: 'parcel-point',
         layout: {
           'icon-image': 'parcel-pin',
-          'icon-size': 0.5,
+          'icon-size': 1, // Default size
         },
       });
 
+      // Add event handlers for both layers
       const addPopupHandlers = (layerId: string) => {
         map.on('mouseenter', layerId, (e) => {
           if (e.features && e.features.length > 0) {
@@ -180,6 +189,7 @@ const GetLiveTrackingMap = ({
     };
   }, [isBroadcasting, parcelLocation]);
 
+  // Socket listener
   useEffect(() => {
     if (!id) return;
 
@@ -214,6 +224,7 @@ const GetLiveTrackingMap = ({
     };
   }, [id]);
 
+  // Update map source data when location changes
   useEffect(() => {
     if (!mapRef.current || !location) return;
 
@@ -235,6 +246,7 @@ const GetLiveTrackingMap = ({
       ],
     });
 
+    // Only zoom to the location on the first update
     if (isFirstLocation) {
       map.flyTo({
         center: [location.lng, location.lat],
