@@ -44,18 +44,20 @@ const GetLiveTrackingMap = ({
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const popupRef = useRef<mapboxgl.Popup | null>(null);
 
-  const dummyLocation = {
-    lat: 23.8103,
+  // Dummy parcel location
+  const [parcelLocation] = useState({
+    lat: 23.8103, // Example: Dhaka, Bangladesh
     lng: 90.4125,
     info: {
-      name: 'Dummy Agent',
-      status: 'Available',
-      eta: '15 minutes',
-      vehicle: 'Car',
-      speed: '40 km/h',
+      name: 'Parcel Destination',
+      status: 'Waiting for delivery',
+      eta: '25 minutes',
+      vehicle: 'N/A',
+      speed: 'N/A',
     },
-  };
+  });
 
+  // Initialize map only once
   useEffect(() => {
     if (!mapContainerRef.current) return;
     mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_API_KEY;
@@ -79,19 +81,22 @@ const GetLiveTrackingMap = ({
 
     const pulsingDot = createPulsingDot(map, isBroadcasting);
     map.on('load', () => {
+      // Add pulsing dot for agent
       map.addImage('pulsing-dot', pulsingDot, { pixelRatio: 2 });
-      // Add a regular marker image for the dummy location
+
+      // Add package icon for parcel
       map.loadImage(
-        'https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png',
+        'https://cdn-icons-png.flaticon.com/512/3502/3502689.png',
         (error, image) => {
           if (error) throw error;
           if (image) {
-            map.addImage('custom-marker', image);
+            map.addImage('parcel-icon', image, { pixelRatio: 2 });
           }
         },
       );
 
-      map.addSource('dot-point', {
+      // Source for agent location
+      map.addSource('agent-point', {
         type: 'geojson',
         data: {
           type: 'FeatureCollection',
@@ -99,8 +104,8 @@ const GetLiveTrackingMap = ({
         },
       });
 
-      // Add source for dummy location
-      map.addSource('dummy-point', {
+      // Source for parcel location
+      map.addSource('parcel-point', {
         type: 'geojson',
         data: {
           type: 'FeatureCollection',
@@ -109,32 +114,33 @@ const GetLiveTrackingMap = ({
               type: 'Feature',
               geometry: {
                 type: 'Point',
-                coordinates: [dummyLocation.lng, dummyLocation.lat],
+                coordinates: [parcelLocation.lng, parcelLocation.lat],
               },
-              properties: dummyLocation.info,
+              properties: parcelLocation.info,
             },
           ],
         },
       });
 
+      // Layer for agent
       map.addLayer({
-        id: 'points',
+        id: 'agent-points',
         type: 'symbol',
-        source: 'dot-point',
+        source: 'agent-point',
         layout: {
           'icon-image': 'pulsing-dot',
           'icon-size': 1,
         },
       });
 
-      // Add layer for dummy location
+      // Layer for parcel
       map.addLayer({
-        id: 'dummy-points',
+        id: 'parcel-points',
         type: 'symbol',
-        source: 'dummy-point',
+        source: 'parcel-point',
         layout: {
-          'icon-image': 'custom-marker',
-          'icon-size': 0.5,
+          'icon-image': 'parcel-icon',
+          'icon-size': 0.08,
         },
       });
 
@@ -173,20 +179,16 @@ const GetLiveTrackingMap = ({
         });
       };
 
-      addPopupHandlers('points');
-      addPopupHandlers('dummy-points');
+      addPopupHandlers('agent-points');
+      addPopupHandlers('parcel-points');
     });
 
     return () => {
       map.remove();
     };
-  }, [
-    dummyLocation.info,
-    dummyLocation.lat,
-    dummyLocation.lng,
-    isBroadcasting,
-  ]);
+  }, [isBroadcasting, parcelLocation]);
 
+  // Socket listener
   useEffect(() => {
     if (!id) return;
 
@@ -221,11 +223,12 @@ const GetLiveTrackingMap = ({
     };
   }, [id]);
 
+  // Update map source data when location changes
   useEffect(() => {
     if (!mapRef.current || !location) return;
 
     const map = mapRef.current;
-    const source = map.getSource('dot-point') as mapboxgl.GeoJSONSource;
+    const source = map.getSource('agent-point') as mapboxgl.GeoJSONSource;
     if (!source) return;
 
     source.setData({
@@ -242,6 +245,7 @@ const GetLiveTrackingMap = ({
       ],
     });
 
+    // smoothly move camera
     map.flyTo({
       center: [location.lng, location.lat],
       zoom: 12,
