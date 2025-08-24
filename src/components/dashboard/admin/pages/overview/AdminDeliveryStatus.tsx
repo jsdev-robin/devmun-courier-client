@@ -17,42 +17,36 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-
-const chartData = [
-  { browser: 'chrome', visitors: 275, fill: 'var(--color-chrome)' },
-  { browser: 'safari', visitors: 200, fill: 'var(--color-safari)' },
-  { browser: 'firefox', visitors: 187, fill: 'var(--color-firefox)' },
-  { browser: 'edge', visitors: 173, fill: 'var(--color-edge)' },
-  { browser: 'other', visitors: 90, fill: 'var(--color-other)' },
-];
+import { useParcelStatusDistributionQuery } from '../../../../../lib/features/services/adminControl/adminControllApi';
 
 const chartConfig = {
-  visitors: {
-    label: 'Visitors',
+  count: {
+    label: 'count',
   },
-  chrome: {
-    label: 'Chrome',
+  booked: {
+    label: 'Booked',
     color: 'var(--chart-1)',
   },
-  safari: {
-    label: 'Safari',
+  picked_up: {
+    label: 'Picked Up',
     color: 'var(--chart-2)',
   },
-  firefox: {
-    label: 'Firefox',
+  in_transit: {
+    label: 'In Transit',
     color: 'var(--chart-3)',
   },
-  edge: {
-    label: 'Edge',
+  delivered: {
+    label: 'Delivered',
     color: 'var(--chart-4)',
   },
-  other: {
-    label: 'Other',
+  failed: {
+    label: 'failed',
     color: 'var(--chart-5)',
   },
 } satisfies ChartConfig;
 
 const AdminDeliveryStatus = () => {
+  const { data } = useParcelStatusDistributionQuery();
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
@@ -66,11 +60,11 @@ const AdminDeliveryStatus = () => {
         >
           <PieChart>
             <ChartTooltip
-              content={<ChartTooltipContent nameKey="visitors" hideLabel />}
+              content={<ChartTooltipContent nameKey="count" hideLabel />}
             />
-            <Pie data={chartData} dataKey="visitors">
+            <Pie data={data?.data.data} dataKey="count" nameKey="status">
               <LabelList
-                dataKey="browser"
+                dataKey="status"
                 className="fill-background"
                 stroke="none"
                 fontSize={12}
@@ -87,7 +81,7 @@ const AdminDeliveryStatus = () => {
           Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
         </div>
         <div className="text-muted-foreground leading-none">
-          Showing total visitors for the last 6 months
+          Showing total count for the last 6 months
         </div>
       </CardFooter>
     </Card>

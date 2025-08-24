@@ -7,6 +7,12 @@ export interface ParcelAssginRequest {
   notes?: string;
 }
 
+export interface ParcelStatusStat {
+  count: number;
+  status: 'booked' | 'picked_up' | 'in_transit' | 'delivered' | 'failed';
+  fill: string;
+}
+
 export interface Parcel {
   _id: string;
   trackingId: string;

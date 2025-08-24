@@ -30,7 +30,7 @@ const AdminDeliveryRoute = () => {
 
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current!,
-      style: 'mapbox://styles/mapbox/light-v11',
+      style: 'mapbox://styles/mapbox/streets-v11',
       center: [90.3563, 23.685],
       zoom: 7,
       projection: 'equirectangular',

@@ -1,6 +1,6 @@
 import { PaginationState } from '@tanstack/react-table';
 import { IUser } from './auth';
-import { Parcel } from './parcel';
+import { Parcel, ParcelStatusStat } from './parcel';
 
 export type GetQueryParams = {
   pagination?: PaginationState;
@@ -24,3 +24,4 @@ export interface PaginatedResponse<T> {
 export type ParcelResponse = PaginatedResponse<Parcel>;
 export type CustomerResponse = PaginatedResponse<IUser>;
 export type AgentResponse = PaginatedResponse<IUser>;
+export type ParcelStatusStatResponse = PaginatedResponse<ParcelStatusStat>;

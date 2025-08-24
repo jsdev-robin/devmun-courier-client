@@ -5,6 +5,7 @@ import {
   CustomerResponse,
   GetQueryParams,
   ParcelResponse,
+  ParcelStatusStatResponse,
 } from '../../types/api-response';
 import { ParcelAssginRequest } from '../../types/parcel';
 
@@ -75,6 +76,10 @@ export const adminControllApi = apiSlice.injectEndpoints({
         invalidatesTags: ['Parcel'],
       },
     ),
+
+    parcelStatusDistribution: builder.query<ParcelStatusStatResponse, void>({
+      query: () => '/admin/analytics/status-distribution',
+    }),
   }),
 });
 
@@ -85,4 +90,5 @@ export const {
   useAgentInviteByAdminMutation,
   useAgentCreateMutation,
   useParcelAssginByAdminMutation,
+  useParcelStatusDistributionQuery,
 } = adminControllApi;
