@@ -4,182 +4,187 @@ import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { createSocket } from '../../lib/socket';
-import { createPulsingDot } from '../../utils/pulsingDot';
 
 const customerSocket = createSocket('customer');
 
-interface PointGeometry {
-  type: 'Point';
-  coordinates: [number, number];
+interface AgentData {
+  agentId: string;
+  location?: {
+    lat: number;
+    lng: number;
+    speed: number;
+    timestamp: number;
+  };
+  name?: string;
+  status?: string;
+  eta?: string;
+  vehicle?: string;
 }
 
 const GetLiveTrackingMap = ({
   id,
-  name,
-  status,
-}: {
+}: // status,
+// name,
+{
   id: string;
   status?: string;
   name?: string;
 }) => {
-  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
-    null,
-  );
-  const [agentInfo, setAgentInfo] = useState({
-    name: name,
-    status: status,
-    eta: '25 minutes',
-    vehicle: 'Motorcycle',
-    speed: '0 km/h',
-  });
-  const [isBroadcasting, setIsBroadcasting] = useState(true);
+  const [agents, setAgents] = useState<Map<string, AgentData>>(new Map());
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
-  const popupRef = useRef<mapboxgl.Popup | null>(null);
+  const markersRef = useRef<Map<string, mapboxgl.Marker>>(new Map());
 
-  // Initialize map only once
   useEffect(() => {
     if (!mapContainerRef.current) return;
-    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_API_KEY;
+
+    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_API_KEY || '';
 
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: 'mapbox://styles/mapbox/streets-v11',
-      center: [0, 20],
-      zoom: 1.5,
-      projection: 'mercator',
-    });
-
-    const map = mapRef.current;
-
-    const popup = new mapboxgl.Popup({
-      closeButton: false,
-      closeOnClick: false,
-      offset: 25,
-    });
-    popupRef.current = popup;
-
-    const pulsingDot = createPulsingDot(map, isBroadcasting);
-    map.on('load', () => {
-      map.addImage('pulsing-dot', pulsingDot, { pixelRatio: 2 });
-
-      map.addSource('dot-point', {
-        type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: [],
-        },
-      });
-
-      map.addLayer({
-        id: 'points',
-        type: 'symbol',
-        source: 'dot-point',
-        layout: {
-          'icon-image': 'pulsing-dot',
-          'icon-size': 1,
-        },
-      });
-
-      map.on('mouseenter', 'points', (e) => {
-        if (e.features && e.features.length > 0) {
-          const feature = e.features[0];
-          const geometry = feature.geometry as PointGeometry;
-          const coordinates = geometry.coordinates.slice() as [number, number];
-          const properties = feature.properties || {};
-
-          popup
-            .setLngLat(coordinates)
-            .setHTML(
-              `<div class="p-2">
-                <h3 class="font-bold text-sm">${properties.name}</h3>
-                <p class="text-xs"><strong>Status:</strong> ${properties.status}</p>
-                <p class="text-xs"><strong>ETA:</strong> ${properties.eta}</p>
-                <p class="text-xs"><strong>Vehicle:</strong> ${properties.vehicle}</p>
-                <p class="text-xs"><strong>Speed:</strong> ${properties.speed}</p>
-              </div>`,
-            )
-            .addTo(map);
-
-          map.getCanvas().style.cursor = 'pointer';
-        }
-      });
-
-      map.on('mouseleave', 'points', () => {
-        popup.remove();
-        map.getCanvas().style.cursor = '';
-      });
+      center: [90.4125, 23.8103],
+      zoom: 10,
     });
 
     return () => {
-      map.remove();
+      if (mapRef.current) {
+        mapRef.current.remove();
+      }
     };
-  }, [isBroadcasting]);
+  }, []);
 
-  // Socket listener
   useEffect(() => {
     if (!id) return;
+
+    const agentIds = id.split(',');
 
     if (!customerSocket.connected) {
       customerSocket.connect();
     }
 
-    customerSocket.emit('joinCustomerRoom', id);
+    // Join rooms for all agents
+    agentIds.forEach((agentId) => {
+      customerSocket.emit('joinCustomerRoom', agentId);
+    });
+
+    const allOnlineAgentsHandler = (agentsData: AgentData[]) => {
+      const newAgents = new Map<string, AgentData>();
+      agentsData.forEach((agent) => {
+        newAgents.set(agent.agentId, agent);
+      });
+      setAgents(newAgents);
+    };
 
     const locationUpdateHandler = (data: {
+      agentId: string;
       lat: number;
       lng: number;
       speed: number;
     }) => {
-      setLocation({ lat: data.lat, lng: data.lng });
-      setAgentInfo((prev) => ({
-        ...prev,
-        speed: `${data.speed} km/h`,
-      }));
+      setAgents((prev) => {
+        const newAgents = new Map(prev);
+        const agent = newAgents.get(data.agentId) || { agentId: data.agentId };
+        agent.location = {
+          lat: data.lat,
+          lng: data.lng,
+          speed: data.speed,
+          timestamp: Date.now(),
+        };
+        newAgents.set(data.agentId, agent);
+        return newAgents;
+      });
     };
 
-    const broadcastingHandler = (status: boolean) => {
-      setIsBroadcasting(status);
+    const agentOnlineHandler = (data: {
+      agentId: string;
+      location?: unknown;
+    }) => {
+      setAgents((prev) => {
+        const newAgents = new Map(prev);
+        newAgents.set(data.agentId, {
+          agentId: data.agentId,
+          location: data.location as {
+            lat: number;
+            lng: number;
+            speed: number;
+            timestamp: number;
+          },
+        });
+        return newAgents;
+      });
     };
 
+    const agentOfflineHandler = (data: { agentId: string }) => {
+      setAgents((prev) => {
+        const newAgents = new Map(prev);
+        newAgents.delete(data.agentId);
+        return newAgents;
+      });
+    };
+
+    customerSocket.on('allOnlineAgents', allOnlineAgentsHandler);
     customerSocket.on('locationUpdate', locationUpdateHandler);
-    customerSocket.on('broadcastingStatus', broadcastingHandler);
+    customerSocket.on('agentOnline', agentOnlineHandler);
+    customerSocket.on('agentOffline', agentOfflineHandler);
 
     return () => {
+      customerSocket.off('allOnlineAgents', allOnlineAgentsHandler);
       customerSocket.off('locationUpdate', locationUpdateHandler);
-      customerSocket.off('broadcastingStatus', broadcastingHandler);
+      customerSocket.off('agentOnline', agentOnlineHandler);
+      customerSocket.off('agentOffline', agentOfflineHandler);
     };
   }, [id]);
 
-  // Update map source data when location changes
   useEffect(() => {
-    if (!mapRef.current || !location) return;
-
+    if (!mapRef.current) return;
     const map = mapRef.current;
-    const source = map.getSource('dot-point') as mapboxgl.GeoJSONSource;
-    if (!source) return;
 
-    source.setData({
-      type: 'FeatureCollection',
-      features: [
-        {
-          type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: [location.lng, location.lat],
-          },
-          properties: agentInfo,
-        },
-      ],
+    agents.forEach((agent, agentId) => {
+      if (!agent.location) return;
+
+      if (markersRef.current.has(agentId)) {
+        const marker = markersRef.current.get(agentId);
+        if (marker) {
+          marker.setLngLat([agent.location.lng, agent.location.lat]);
+        }
+      } else {
+        const el = document.createElement('div');
+        el.className = 'marker';
+        el.style.width = '20px';
+        el.style.height = '20px';
+        el.style.backgroundColor = '#3b82f6';
+        el.style.borderRadius = '50%';
+        el.style.boxShadow = '0 0 0 4px rgba(59, 130, 246, 0.4)';
+
+        const marker = new mapboxgl.Marker(el)
+          .setLngLat([agent.location.lng, agent.location.lat])
+          .setPopup(
+            new mapboxgl.Popup({ offset: 25 }).setHTML(
+              `<div class="p-2">
+                  <h3 class="font-bold text-sm">${agent.name || 'Agent'}</h3>
+                  <p class="text-xs"><strong>Status:</strong> ${
+                    agent.status || 'Online'
+                  }</p>
+                  <p class="text-xs"><strong>Speed:</strong> ${
+                    agent.location.speed
+                  } km/h</p>
+                </div>`,
+            ),
+          )
+          .addTo(map);
+
+        markersRef.current.set(agentId, marker);
+      }
     });
 
-    // smoothly move camera
-    map.flyTo({
-      center: [location.lng, location.lat],
-      zoom: 12,
-      speed: 1.2,
+    markersRef.current.forEach((marker, agentId) => {
+      if (!agents.has(agentId)) {
+        marker.remove();
+        markersRef.current.delete(agentId);
+      }
     });
-  }, [location, agentInfo]);
+  }, [agents]);
 
   return (
     <div

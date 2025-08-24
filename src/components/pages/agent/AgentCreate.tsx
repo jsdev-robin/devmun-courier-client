@@ -351,7 +351,7 @@ const AgentCreate = ({ token }: { token: string }) => {
                         <FormItem>
                           <FormLabel>Password</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input {...field} type="password" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -364,7 +364,7 @@ const AgentCreate = ({ token }: { token: string }) => {
                         <FormItem>
                           <FormLabel>Password Confirm</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input {...field} type="password" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
