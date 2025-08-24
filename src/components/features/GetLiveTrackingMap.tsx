@@ -40,13 +40,13 @@ const GetLiveTrackingMap = ({
     speed: '0 km/h',
   });
   const [isBroadcasting, setIsBroadcasting] = useState(true);
+  const [isFirstLocation, setIsFirstLocation] = useState(true);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const popupRef = useRef<mapboxgl.Popup | null>(null);
 
-  // Dummy parcel location
   const [parcelLocation] = useState({
-    lat: 23.8103, // Example: Dhaka, Bangladesh
+    lat: 23.8103,
     lng: 90.4125,
     info: {
       name: 'Parcel Destination',
@@ -57,7 +57,6 @@ const GetLiveTrackingMap = ({
     },
   });
 
-  // Initialize map only once
   useEffect(() => {
     if (!mapContainerRef.current) return;
     mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_API_KEY;
@@ -80,12 +79,19 @@ const GetLiveTrackingMap = ({
     popupRef.current = popup;
 
     const pulsingDot = createPulsingDot(map, isBroadcasting);
-
     map.on('load', () => {
-      // Add pulsing dot for agent
       map.addImage('pulsing-dot', pulsingDot, { pixelRatio: 2 });
 
-      // Source for agent location
+      map.loadImage(
+        'https://cdn-icons-png.flaticon.com/512/684/684908.png',
+        (error, image) => {
+          if (error) throw error;
+          if (image) {
+            map.addImage('parcel-pin', image, { pixelRatio: 2 });
+          }
+        },
+      );
+
       map.addSource('agent-point', {
         type: 'geojson',
         data: {
@@ -94,7 +100,23 @@ const GetLiveTrackingMap = ({
         },
       });
 
-      // Layer for agent
+      map.addSource('parcel-point', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: [
+            {
+              type: 'Feature',
+              geometry: {
+                type: 'Point',
+                coordinates: [parcelLocation.lng, parcelLocation.lat],
+              },
+              properties: parcelLocation.info,
+            },
+          ],
+        },
+      });
+
       map.addLayer({
         id: 'agent-points',
         type: 'symbol',
@@ -105,49 +127,52 @@ const GetLiveTrackingMap = ({
         },
       });
 
-      // Add a marker for the parcel location using Mapbox's default marker
-      new mapboxgl.Marker({ color: '#FF0000' })
-        .setLngLat([parcelLocation.lng, parcelLocation.lat])
-        .setPopup(
-          new mapboxgl.Popup({ offset: 25 }).setHTML(
-            `<div class="p-2">
-                <h3 class="font-bold text-sm">${parcelLocation.info.name}</h3>
-                <p class="text-xs"><strong>Status:</strong> ${parcelLocation.info.status}</p>
-                <p class="text-xs"><strong>ETA:</strong> ${parcelLocation.info.eta}</p>
-              </div>`,
-          ),
-        )
-        .addTo(map);
-
-      // Add event handlers for agent layer
-      map.on('mouseenter', 'agent-points', (e) => {
-        if (e.features && e.features.length > 0) {
-          const feature = e.features[0];
-          const geometry = feature.geometry as PointGeometry;
-          const coordinates = geometry.coordinates.slice() as [number, number];
-          const properties = feature.properties || {};
-
-          popup
-            .setLngLat(coordinates)
-            .setHTML(
-              `<div class="p-2">
-                <h3 class="font-bold text-sm">${properties.name}</h3>
-                <p class="text-xs"><strong>Status:</strong> ${properties.status}</p>
-                <p class="text-xs"><strong>ETA:</strong> ${properties.eta}</p>
-                <p class="text-xs"><strong>Vehicle:</strong> ${properties.vehicle}</p>
-                <p class="text-xs"><strong>Speed:</strong> ${properties.speed}</p>
-              </div>`,
-            )
-            .addTo(map);
-
-          map.getCanvas().style.cursor = 'pointer';
-        }
+      map.addLayer({
+        id: 'parcel-points',
+        type: 'symbol',
+        source: 'parcel-point',
+        layout: {
+          'icon-image': 'parcel-pin',
+          'icon-size': 0.5,
+        },
       });
 
-      map.on('mouseleave', 'agent-points', () => {
-        popup.remove();
-        map.getCanvas().style.cursor = '';
-      });
+      const addPopupHandlers = (layerId: string) => {
+        map.on('mouseenter', layerId, (e) => {
+          if (e.features && e.features.length > 0) {
+            const feature = e.features[0];
+            const geometry = feature.geometry as PointGeometry;
+            const coordinates = geometry.coordinates.slice() as [
+              number,
+              number,
+            ];
+            const properties = feature.properties || {};
+
+            popup
+              .setLngLat(coordinates)
+              .setHTML(
+                `<div class="p-2">
+                  <h3 class="font-bold text-sm">${properties.name}</h3>
+                  <p class="text-xs"><strong>Status:</strong> ${properties.status}</p>
+                  <p class="text-xs"><strong>ETA:</strong> ${properties.eta}</p>
+                  <p class="text-xs"><strong>Vehicle:</strong> ${properties.vehicle}</p>
+                  <p class="text-xs"><strong>Speed:</strong> ${properties.speed}</p>
+                </div>`,
+              )
+              .addTo(map);
+
+            map.getCanvas().style.cursor = 'pointer';
+          }
+        });
+
+        map.on('mouseleave', layerId, () => {
+          popup.remove();
+          map.getCanvas().style.cursor = '';
+        });
+      };
+
+      addPopupHandlers('agent-points');
+      addPopupHandlers('parcel-points');
     });
 
     return () => {
@@ -155,7 +180,6 @@ const GetLiveTrackingMap = ({
     };
   }, [isBroadcasting, parcelLocation]);
 
-  // Socket listener
   useEffect(() => {
     if (!id) return;
 
@@ -190,7 +214,6 @@ const GetLiveTrackingMap = ({
     };
   }, [id]);
 
-  // Update map source data when location changes
   useEffect(() => {
     if (!mapRef.current || !location) return;
 
@@ -212,13 +235,15 @@ const GetLiveTrackingMap = ({
       ],
     });
 
-    // smoothly move camera to agent location
-    map.flyTo({
-      center: [location.lng, location.lat],
-      zoom: 12,
-      speed: 1.2,
-    });
-  }, [location, agentInfo]);
+    if (isFirstLocation) {
+      map.flyTo({
+        center: [location.lng, location.lat],
+        zoom: 12,
+        speed: 1.2,
+      });
+      setIsFirstLocation(false);
+    }
+  }, [location, agentInfo, isFirstLocation]);
 
   return (
     <Card>
