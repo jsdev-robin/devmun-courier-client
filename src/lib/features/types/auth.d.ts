@@ -44,7 +44,7 @@ export interface IUser {
   familyName: string;
   givenName: string;
   displayName: string;
-  avatar?: {
+  avatar: {
     public_id: string;
     url: string;
   };

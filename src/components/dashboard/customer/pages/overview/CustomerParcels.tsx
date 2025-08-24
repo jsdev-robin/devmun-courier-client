@@ -17,9 +17,14 @@ import Link from 'next/link';
 import { Badge } from '../../../../ui/badge';
 import { getStatusClass } from '../../../../../utils/getStatusColor';
 import { useGetParcelByCustomerQuery } from '../../../../../lib/features/services/customerControl/customerControllApi';
+import CustomerParcelsSkeleton from './particles/CustomerParcelsSkeleton';
 
 const CustomerParcels = () => {
-  const { data } = useGetParcelByCustomerQuery({});
+  const { data, isLoading } = useGetParcelByCustomerQuery({});
+
+  if (isLoading) {
+    return <CustomerParcelsSkeleton />;
+  }
 
   return (
     <section>

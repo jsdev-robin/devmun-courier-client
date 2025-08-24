@@ -1,6 +1,6 @@
 'use client';
 
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -17,15 +17,21 @@ interface GetLocationProps {
       lng: number;
     } | null>
   >;
+  defaultLocation?: {
+    lat: number;
+    lng: number;
+  } | null;
 }
 
 const GetLocation: React.FC<GetLocationProps> = ({
   className,
   setPickupLocation,
+  defaultLocation,
 }) => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markerRef = useRef<mapboxgl.Marker | null>(null);
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -33,7 +39,7 @@ const GetLocation: React.FC<GetLocationProps> = ({
     mapRef.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',
-      center: [90.4125, 23.8103],
+      center: [90.4125, 23.8103], // Default center (Dhaka, Bangladesh)
       zoom: 12,
     });
 
@@ -73,8 +79,38 @@ const GetLocation: React.FC<GetLocationProps> = ({
       }
     });
 
-    return () => mapRef.current?.remove();
+    mapRef.current.on('load', () => {
+      setIsMapLoaded(true);
+    });
+
+    return () => {
+      mapRef.current?.remove();
+      setIsMapLoaded(false);
+    };
   }, [setPickupLocation]);
+
+  // Handle default location when map is loaded
+  useEffect(() => {
+    if (isMapLoaded && defaultLocation && mapRef.current) {
+      const { lng, lat } = defaultLocation;
+
+      // Add marker at default location
+      if (!markerRef.current) {
+        markerRef.current = new mapboxgl.Marker()
+          .setLngLat([lng, lat])
+          .addTo(mapRef.current);
+      } else {
+        markerRef.current.setLngLat([lng, lat]);
+      }
+
+      // Fly to default location
+      mapRef.current.flyTo({
+        center: [lng, lat],
+        zoom: 15,
+        essential: true,
+      });
+    }
+  }, [isMapLoaded, defaultLocation]);
 
   return (
     <div>

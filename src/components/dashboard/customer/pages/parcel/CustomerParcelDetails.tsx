@@ -1,39 +1,29 @@
 'use client';
 
 import React from 'react';
-import { Button, buttonVariants } from '../../../../ui/button';
-import {
-  Check,
-  Mail,
-  MapPin,
-  PackageOpen,
-  Phone,
-  Printer,
-  ScrollText,
-  Truck,
-  TruckElectric,
-} from 'lucide-react';
-import Heading from '../../../../ui/heading';
-import Typography from '../../../../ui/typography';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { Mail, MapPin, Phone, Printer } from 'lucide-react';
+import Heading from '@/components/ui/heading';
+import Typography from '@/components/ui/typography';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../../../../ui/card';
-import { Progress } from '../../../../ui/progress';
+} from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
-import { cn } from '../../../../../lib/utils';
-import Loading from '../../../../../app/loading';
+import { cn } from '@/lib/utils';
 import GetLiveTrackingMap from '../../../../features/GetLiveTrackingMap';
-import { useGetCustomerParcelByIdQuery } from '../../../../../lib/features/services/customerControl/customerControllApi';
+import { useGetCustomerParcelByIdQuery } from '@/lib/features/services/customerControl/customerControllApi';
+import { DeliveryProgress } from './particles/DeliveryProgress';
+import ParcelDetailsSekeleton from './particles/ParcelDetailsSekeleton';
 
 const CustomerParcelDetails = ({ id }: { id: string }) => {
   const { data, isLoading } = useGetCustomerParcelByIdQuery(id);
 
-  if (isLoading) return <Loading />;
+  if (isLoading) return <ParcelDetailsSekeleton />;
 
   return (
     <section>
@@ -54,16 +44,28 @@ const CustomerParcelDetails = ({ id }: { id: string }) => {
             <CardHeader>
               <Heading as="h6">
                 Parcel Status:{' '}
-                <span className="text-yellow-600">In Transit</span>
+                <span className="text-yellow-600 capitalize">
+                  {data?.data.parcel.status}
+                </span>
               </Heading>
               <Typography variant="sm" className="text-muted-foreground">
-                Estimated delivery: October 18, 2023
+                Estimated delivery:{' '}
+                {data?.data.parcel.createdAt
+                  ? new Date(
+                      new Date(data.data.parcel.createdAt).getTime() +
+                        3 * 24 * 60 * 60 * 1000,
+                    ).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })
+                  : 'N/A'}
               </Typography>
             </CardHeader>
             <CardContent>
-              <Progress value={80} className="h-3" />
+              <DeliveryProgress status={data?.data.parcel.status} />
               <div className="flex justify-between mt-3 text-sm text-muted-foreground">
-                <span>Order Placed</span>
+                <span>Booked</span>
                 <span>Picked Up</span>
                 <span>In Transit</span>
                 <span>Out for Delivery</span>
@@ -82,10 +84,12 @@ const CustomerParcelDetails = ({ id }: { id: string }) => {
                     <div className="flex items-start gap-3">
                       <Avatar>
                         <AvatarImage
-                          src="https://github.com/shadcn.png"
-                          alt="@shadcn"
+                          src={data?.data.parcel.customer.avatar?.url}
+                          alt={data?.data.parcel.customer.familyName[0]}
                         />
-                        <AvatarFallback>CN</AvatarFallback>
+                        <AvatarFallback>
+                          {data?.data.parcel.customer.familyName[0]}
+                        </AvatarFallback>
                       </Avatar>
                       <div>
                         <Heading as="h6">
@@ -99,10 +103,10 @@ const CustomerParcelDetails = ({ id }: { id: string }) => {
                             </span>
                             <span>
                               {data?.data.parcel.customer.address?.addressLine1}
-                              {', '}
+                              <br />
                               {data?.data.parcel.customer.address?.city}-
                               {data?.data.parcel.customer.address?.zipCode}
-                              {', '}
+                              <br />
                               {
                                 data?.data.parcel.customer.address
                                   ?.stateDivision
@@ -128,13 +132,6 @@ const CustomerParcelDetails = ({ id }: { id: string }) => {
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-start gap-3">
-                      <Avatar>
-                        <AvatarImage
-                          src="https://github.com/shadcn.png"
-                          alt="@shadcn"
-                        />
-                        <AvatarFallback>CN</AvatarFallback>
-                      </Avatar>
                       <div>
                         <Heading as="h6">
                           {data?.data.parcel.receiverName}
@@ -216,10 +213,13 @@ const CustomerParcelDetails = ({ id }: { id: string }) => {
                         <div className="flex items-start">
                           <Avatar>
                             <AvatarImage
-                              src="https://github.com/shadcn.png"
-                              alt="@shadcn"
+                              src={data?.data.parcel.agent.avatar?.url}
+                              alt={data?.data.parcel.agent.familyName}
+                              className="object-cover"
                             />
-                            <AvatarFallback>CN</AvatarFallback>
+                            <AvatarFallback>
+                              {data?.data.parcel.agent.familyName[0]}
+                            </AvatarFallback>
                           </Avatar>
                           <div className="ml-4">
                             <Typography variant="sm" weight="medium">
@@ -246,7 +246,7 @@ const CustomerParcelDetails = ({ id }: { id: string }) => {
                       </div>
                     </CardContent>
                   </Card>
-                  <Card>
+                  {/* <Card>
                     <CardHeader>
                       <CardTitle>Tracking History</CardTitle>
                     </CardHeader>
@@ -359,7 +359,7 @@ const CustomerParcelDetails = ({ id }: { id: string }) => {
                         </li>
                       </ul>
                     </CardContent>
-                  </Card>
+                  </Card> */}
                 </div>
               ) : (
                 <Card>
