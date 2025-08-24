@@ -21,7 +21,7 @@ export const adminControllApi = apiSlice.injectEndpoints({
         if (globalFilter) url += `&q=${globalFilter}`;
         return { url, method: 'GET' };
       },
-      providesTags: ['Parcel'],
+      providesTags: ['AdminParcel'],
     }),
 
     getCustomerByAdmin: builder.query<CustomerResponse, GetQueryParams>({
@@ -34,7 +34,6 @@ export const adminControllApi = apiSlice.injectEndpoints({
         if (globalFilter) url += `&q=${globalFilter}`;
         return { url, method: 'GET' };
       },
-      providesTags: ['Parcel'],
     }),
 
     getAgentByAdmin: builder.query<AgentResponse, GetQueryParams>({
@@ -47,7 +46,6 @@ export const adminControllApi = apiSlice.injectEndpoints({
         if (globalFilter) url += `&q=${globalFilter}`;
         return { url, method: 'GET' };
       },
-      providesTags: ['Parcel'],
     }),
 
     agentInviteByAdmin: builder.mutation<SuccessResponse, { email: string }>({
@@ -73,7 +71,7 @@ export const adminControllApi = apiSlice.injectEndpoints({
           method: 'PUT',
           body: data,
         }),
-        invalidatesTags: ['Parcel'],
+        invalidatesTags: ['AdminParcel'],
       },
     ),
 

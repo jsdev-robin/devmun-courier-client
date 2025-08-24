@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import {
   Card,
@@ -5,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from '../../../../../ui/card';
+import GetLocation from '../../../../../features/GetLocation';
 
 const AgentDeliveryRoute = () => {
   return (
@@ -13,7 +16,7 @@ const AgentDeliveryRoute = () => {
         <CardTitle>Delivery Route</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="bg-primary h-100">d</div>
+        <GetLocation />
       </CardContent>
     </Card>
   );

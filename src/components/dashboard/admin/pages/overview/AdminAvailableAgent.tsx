@@ -74,7 +74,9 @@ const AdminAvailableAgent = () => {
     {},
   );
   const { data: parcelData, isLoading: parcelLoading } =
-    useGetParcelByAdminQuery({});
+    useGetParcelByAdminQuery({
+      queryParams: 'status[eq]=booked',
+    });
 
   return (
     <section>

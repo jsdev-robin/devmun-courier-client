@@ -19,7 +19,9 @@ import AgentDeliveryRoute from './particles/AgentDeliveryRoute';
 import AgentUpdateParcelStatus from './particles/AgentUpdateParcelStatus';
 
 const AgentAssignedParcels = () => {
-  const { data, isLoading, isError } = useGetParcelByAgentQuery({});
+  const { data, isLoading, isError } = useGetParcelByAgentQuery({
+    queryParams: 'status[ne]=delivered',
+  });
 
   console.log(data);
 

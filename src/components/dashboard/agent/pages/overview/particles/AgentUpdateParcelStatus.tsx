@@ -21,31 +21,51 @@ import {
 import SelectInput from '../../../../../ui/SelectInput';
 import { Textarea } from '../../../../../ui/textarea';
 import { Button } from '../../../../../ui/button';
+import {
+  useGetParcelByAgentQuery,
+  useParcelStatusUpdateByAgentMutation,
+} from '../../../../../../lib/features/services/agentControl/agentControllApi';
+import { Loader } from 'lucide-react';
+import { toast } from 'sonner';
 
 const parcelUpdateSchema = z.object({
-  trackingNumber: z
-    .string()
-    .regex(/^#?TRK\d{6,}$/, 'Invalid tracking number format'),
-  customerName: z.string().min(1, 'Customer name is required'),
-  status: z.enum(['Failed Delivery', 'Delivered', 'In Transit', 'Pending']),
+  parcelId: z.string(),
+  status: z.string().min(1, 'Status name is required'),
   notes: z.string().max(500).optional(),
 });
 
 const AgentUpdateParcelStatus = () => {
+  const [parcelStatusUpdateByAgent, { isLoading: updateStatusLoading }] =
+    useParcelStatusUpdateByAgentMutation();
   const form = useForm<z.infer<typeof parcelUpdateSchema>>({
     resolver: zodResolver(parcelUpdateSchema),
     mode: 'onChange',
     defaultValues: {
-      trackingNumber: '',
-      customerName: '',
-      status: 'Pending',
+      parcelId: '',
+      status: '',
       notes: '',
     },
   });
 
   async function onSubmit(data: z.infer<typeof parcelUpdateSchema>) {
-    console.log(data);
+    await toast.promise(
+      parcelStatusUpdateByAgent(data)
+        .unwrap()
+        .then((res) => res),
+      {
+        loading: 'Updating status...',
+        success: (res) => {
+          form.reset();
+          return res?.message;
+        },
+        error: (err) => err?.data?.message,
+      },
+    );
   }
+
+  const { data, isLoading } = useGetParcelByAgentQuery({
+    queryParams: 'status[ne]=booked,delivered',
+  });
 
   return (
     <Card>
@@ -58,35 +78,20 @@ const AgentUpdateParcelStatus = () => {
             <div className="space-y-6">
               <FormField
                 control={form.control}
-                name="trackingNumber"
+                name="parcelId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Select Parcel</FormLabel>
                     <FormControl>
                       <SelectInput
                         {...field}
-                        options={[
-                          {
-                            value: '#TRK789013',
-                            label: '#TRK789013 - Robert Brown',
-                          },
-                          {
-                            value: '#TRK456782',
-                            label: '#TRK456782 - Alice Johnson',
-                          },
-                          {
-                            value: '#TRK123457',
-                            label: '#TRK123457 - Michael Smith',
-                          },
-                          {
-                            value: '#TRK987654',
-                            label: '#TRK987654 - Emma Williams',
-                          },
-                          {
-                            value: '#TRK654321',
-                            label: '#TRK654321 - David Miller',
-                          },
-                        ]}
+                        options={
+                          data?.data.data.map((parcel) => ({
+                            label: parcel.trackingId,
+                            value: parcel._id,
+                          })) || []
+                        }
+                        disabled={isLoading || data?.data.data.length === 0}
                       />
                     </FormControl>
                     <FormMessage />
@@ -103,11 +108,11 @@ const AgentUpdateParcelStatus = () => {
                       <SelectInput
                         {...field}
                         options={[
-                          { value: 'Pending', label: 'Pending' },
-                          { value: 'In Transit', label: 'In Transit' },
-                          { value: 'Delivered', label: 'Delivered' },
+                          { value: 'picked_up', label: 'Picked up' },
+                          { value: 'in_transit', label: 'In Transit' },
+                          { value: 'delivered', label: 'Delivered' },
                           {
-                            value: 'Failed Delivery',
+                            value: 'failed',
                             label: 'Failed Delivery',
                           },
                         ]}
@@ -130,7 +135,17 @@ const AgentUpdateParcelStatus = () => {
                   </FormItem>
                 )}
               />
-              <Button className="w-full">Update Status</Button>
+              <Button
+                className="w-full"
+                disabled={
+                  isLoading ||
+                  updateStatusLoading ||
+                  data?.data.data.length === 0
+                }
+              >
+                {isLoading && <Loader className="animate-spin" />}
+                Update Status
+              </Button>
             </div>
           </form>
         </Form>

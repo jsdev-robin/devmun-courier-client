@@ -3,13 +3,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '../ui/card';
 import { createSocket } from '../../lib/socket';
 import { createPulsingDot } from '../../utils/pulsingDot';
 
@@ -189,21 +182,10 @@ const GetLiveTrackingMap = ({
   }, [location, agentInfo]);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Real-Time Agent Tracking</CardTitle>
-        <CardDescription>
-          View live agent locations worldwide with interactive pulsing markers.
-          Hover over markers to see agent info.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div
-          ref={mapContainerRef}
-          className="w-full h-120 rounded-xl overflow-hidden border border-border"
-        />
-      </CardContent>
-    </Card>
+    <div
+      ref={mapContainerRef}
+      className="w-full h-120 rounded-xl overflow-hidden border border-border"
+    />
   );
 };
 

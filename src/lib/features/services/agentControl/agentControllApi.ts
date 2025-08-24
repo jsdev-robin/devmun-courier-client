@@ -1,5 +1,7 @@
 import { apiSlice } from '../../api/api';
+import { SuccessResponse } from '../../types';
 import { GetQueryParams, ParcelResponse } from '../../types/api-response';
+import { ParcelStatusUpdateRequest } from '../../types/parcel';
 
 export const agentControllApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -13,9 +15,24 @@ export const agentControllApi = apiSlice.injectEndpoints({
         if (globalFilter) url += `&q=${globalFilter}`;
         return { url, method: 'GET' };
       },
-      providesTags: ['Parcel'],
+      providesTags: ['AgentParcel'],
+    }),
+
+    parcelStatusUpdateByAgent: builder.mutation<
+      SuccessResponse,
+      ParcelStatusUpdateRequest
+    >({
+      query: ({ parcelId, status, notes }) => ({
+        url: `/agent/parcel/${parcelId}`,
+        method: 'PUT',
+        body: { status, notes },
+      }),
+      invalidatesTags: ['AgentParcel'],
     }),
   }),
 });
 
-export const { useGetParcelByAgentQuery } = agentControllApi;
+export const {
+  useGetParcelByAgentQuery,
+  useParcelStatusUpdateByAgentMutation,
+} = agentControllApi;
