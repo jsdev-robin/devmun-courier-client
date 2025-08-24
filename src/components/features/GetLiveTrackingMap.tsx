@@ -44,7 +44,18 @@ const GetLiveTrackingMap = ({
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const popupRef = useRef<mapboxgl.Popup | null>(null);
 
-  // Initialize map only once
+  const dummyLocation = {
+    lat: 23.8103,
+    lng: 90.4125,
+    info: {
+      name: 'Dummy Agent',
+      status: 'Available',
+      eta: '15 minutes',
+      vehicle: 'Car',
+      speed: '40 km/h',
+    },
+  };
+
   useEffect(() => {
     if (!mapContainerRef.current) return;
     mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_API_KEY;
@@ -69,12 +80,40 @@ const GetLiveTrackingMap = ({
     const pulsingDot = createPulsingDot(map, isBroadcasting);
     map.on('load', () => {
       map.addImage('pulsing-dot', pulsingDot, { pixelRatio: 2 });
+      // Add a regular marker image for the dummy location
+      map.loadImage(
+        'https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png',
+        (error, image) => {
+          if (error) throw error;
+          if (image) {
+            map.addImage('custom-marker', image);
+          }
+        },
+      );
 
       map.addSource('dot-point', {
         type: 'geojson',
         data: {
           type: 'FeatureCollection',
           features: [],
+        },
+      });
+
+      // Add source for dummy location
+      map.addSource('dummy-point', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: [
+            {
+              type: 'Feature',
+              geometry: {
+                type: 'Point',
+                coordinates: [dummyLocation.lng, dummyLocation.lat],
+              },
+              properties: dummyLocation.info,
+            },
+          ],
         },
       });
 
@@ -88,42 +127,66 @@ const GetLiveTrackingMap = ({
         },
       });
 
-      map.on('mouseenter', 'points', (e) => {
-        if (e.features && e.features.length > 0) {
-          const feature = e.features[0];
-          const geometry = feature.geometry as PointGeometry;
-          const coordinates = geometry.coordinates.slice() as [number, number];
-          const properties = feature.properties || {};
-
-          popup
-            .setLngLat(coordinates)
-            .setHTML(
-              `<div class="p-2">
-                <h3 class="font-bold text-sm">${properties.name}</h3>
-                <p class="text-xs"><strong>Status:</strong> ${properties.status}</p>
-                <p class="text-xs"><strong>ETA:</strong> ${properties.eta}</p>
-                <p class="text-xs"><strong>Vehicle:</strong> ${properties.vehicle}</p>
-                <p class="text-xs"><strong>Speed:</strong> ${properties.speed}</p>
-              </div>`,
-            )
-            .addTo(map);
-
-          map.getCanvas().style.cursor = 'pointer';
-        }
+      // Add layer for dummy location
+      map.addLayer({
+        id: 'dummy-points',
+        type: 'symbol',
+        source: 'dummy-point',
+        layout: {
+          'icon-image': 'custom-marker',
+          'icon-size': 0.5,
+        },
       });
 
-      map.on('mouseleave', 'points', () => {
-        popup.remove();
-        map.getCanvas().style.cursor = '';
-      });
+      // Add event handlers for both layers
+      const addPopupHandlers = (layerId: string) => {
+        map.on('mouseenter', layerId, (e) => {
+          if (e.features && e.features.length > 0) {
+            const feature = e.features[0];
+            const geometry = feature.geometry as PointGeometry;
+            const coordinates = geometry.coordinates.slice() as [
+              number,
+              number,
+            ];
+            const properties = feature.properties || {};
+
+            popup
+              .setLngLat(coordinates)
+              .setHTML(
+                `<div class="p-2">
+                  <h3 class="font-bold text-sm">${properties.name}</h3>
+                  <p class="text-xs"><strong>Status:</strong> ${properties.status}</p>
+                  <p class="text-xs"><strong>ETA:</strong> ${properties.eta}</p>
+                  <p class="text-xs"><strong>Vehicle:</strong> ${properties.vehicle}</p>
+                  <p class="text-xs"><strong>Speed:</strong> ${properties.speed}</p>
+                </div>`,
+              )
+              .addTo(map);
+
+            map.getCanvas().style.cursor = 'pointer';
+          }
+        });
+
+        map.on('mouseleave', layerId, () => {
+          popup.remove();
+          map.getCanvas().style.cursor = '';
+        });
+      };
+
+      addPopupHandlers('points');
+      addPopupHandlers('dummy-points');
     });
 
     return () => {
       map.remove();
     };
-  }, [isBroadcasting]);
+  }, [
+    dummyLocation.info,
+    dummyLocation.lat,
+    dummyLocation.lng,
+    isBroadcasting,
+  ]);
 
-  // Socket listener
   useEffect(() => {
     if (!id) return;
 
@@ -158,7 +221,6 @@ const GetLiveTrackingMap = ({
     };
   }, [id]);
 
-  // Update map source data when location changes
   useEffect(() => {
     if (!mapRef.current || !location) return;
 
@@ -180,7 +242,6 @@ const GetLiveTrackingMap = ({
       ],
     });
 
-    // smoothly move camera
     map.flyTo({
       center: [location.lng, location.lat],
       zoom: 12,
