@@ -39,3 +39,25 @@ export const verifiyEmailSchema = z.object({
     message: 'Your one-time password must be 6 characters.',
   }),
 });
+
+export const forgotPaswordSchema = z.object({
+  email: z.string().email({ message: 'Please enter a valid email address' }),
+});
+
+export const resetPasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, 'Current password is required'),
+    newPassword: z
+      .string()
+      .min(1, 'Password is required')
+      .min(8, 'Password must be at least 8 characters long')
+      .regex(
+        /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_]).{8,}$/,
+        'Password must include at least one uppercase letter, one lowercase letter, one digit, one special character, and be at least 8 characters long.',
+      ),
+    confirmNewPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmNewPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmNewPassword'],
+  });
