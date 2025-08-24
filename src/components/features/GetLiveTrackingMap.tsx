@@ -85,16 +85,8 @@ const GetLiveTrackingMap = ({
       // Add pulsing dot for agent
       map.addImage('pulsing-dot', pulsingDot, { pixelRatio: 2 });
 
-      // Add map pin icon for parcel
-      map.loadImage(
-        'https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png',
-        (error, image) => {
-          if (error) throw error;
-          if (image) {
-            map.addImage('parcel-pin', image);
-          }
-        },
-      );
+      // Use Mapbox's default marker for parcel location
+      // No need to load a custom image
 
       // Source for agent location
       map.addSource('agent-point', {
@@ -130,58 +122,53 @@ const GetLiveTrackingMap = ({
         source: 'agent-point',
         layout: {
           'icon-image': 'pulsing-dot',
-          'icon-size': 1, // Default size
+          'icon-size': 1,
         },
       });
 
-      // Layer for parcel
-      map.addLayer({
-        id: 'parcel-points',
-        type: 'symbol',
-        source: 'parcel-point',
-        layout: {
-          'icon-image': 'parcel-pin',
-          'icon-size': 1, // Default size
-        },
+      // Add a marker for the parcel location using Mapbox's default marker
+      new mapboxgl.Marker({ color: '#FF0000' })
+        .setLngLat([parcelLocation.lng, parcelLocation.lat])
+        .setPopup(
+          new mapboxgl.Popup({ offset: 25 }).setHTML(
+            `<div class="p-2">
+                <h3 class="font-bold text-sm">${parcelLocation.info.name}</h3>
+                <p class="text-xs"><strong>Status:</strong> ${parcelLocation.info.status}</p>
+                <p class="text-xs"><strong>ETA:</strong> ${parcelLocation.info.eta}</p>
+              </div>`,
+          ),
+        )
+        .addTo(map);
+
+      // Add event handlers for agent layer
+      map.on('mouseenter', 'agent-points', (e) => {
+        if (e.features && e.features.length > 0) {
+          const feature = e.features[0];
+          const geometry = feature.geometry as PointGeometry;
+          const coordinates = geometry.coordinates.slice() as [number, number];
+          const properties = feature.properties || {};
+
+          popup
+            .setLngLat(coordinates)
+            .setHTML(
+              `<div class="p-2">
+                <h3 class="font-bold text-sm">${properties.name}</h3>
+                <p class="text-xs"><strong>Status:</strong> ${properties.status}</p>
+                <p class="text-xs"><strong>ETA:</strong> ${properties.eta}</p>
+                <p class="text-xs"><strong>Vehicle:</strong> ${properties.vehicle}</p>
+                <p class="text-xs"><strong>Speed:</strong> ${properties.speed}</p>
+              </div>`,
+            )
+            .addTo(map);
+
+          map.getCanvas().style.cursor = 'pointer';
+        }
       });
 
-      // Add event handlers for both layers
-      const addPopupHandlers = (layerId: string) => {
-        map.on('mouseenter', layerId, (e) => {
-          if (e.features && e.features.length > 0) {
-            const feature = e.features[0];
-            const geometry = feature.geometry as PointGeometry;
-            const coordinates = geometry.coordinates.slice() as [
-              number,
-              number,
-            ];
-            const properties = feature.properties || {};
-
-            popup
-              .setLngLat(coordinates)
-              .setHTML(
-                `<div class="p-2">
-                  <h3 class="font-bold text-sm">${properties.name}</h3>
-                  <p class="text-xs"><strong>Status:</strong> ${properties.status}</p>
-                  <p class="text-xs"><strong>ETA:</strong> ${properties.eta}</p>
-                  <p class="text-xs"><strong>Vehicle:</strong> ${properties.vehicle}</p>
-                  <p class="text-xs"><strong>Speed:</strong> ${properties.speed}</p>
-                </div>`,
-              )
-              .addTo(map);
-
-            map.getCanvas().style.cursor = 'pointer';
-          }
-        });
-
-        map.on('mouseleave', layerId, () => {
-          popup.remove();
-          map.getCanvas().style.cursor = '';
-        });
-      };
-
-      addPopupHandlers('agent-points');
-      addPopupHandlers('parcel-points');
+      map.on('mouseleave', 'agent-points', () => {
+        popup.remove();
+        map.getCanvas().style.cursor = '';
+      });
     });
 
     return () => {
