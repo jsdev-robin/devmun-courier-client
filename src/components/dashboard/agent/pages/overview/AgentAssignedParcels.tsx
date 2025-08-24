@@ -23,8 +23,6 @@ const AgentAssignedParcels = () => {
     queryParams: 'status[ne]=delivered',
   });
 
-  console.log(data);
-
   return (
     <section>
       <div className="container">

@@ -19,10 +19,6 @@ import {
 import { toast } from 'sonner';
 import { useSignoutMutation } from '../../../../lib/features/services/auth/authApi';
 import useUser from '../../../../guard/useUser';
-import { useEffect } from 'react';
-import { createSocket } from '../../../../lib/socket';
-
-const customerSocket = createSocket('customer');
 
 export function NavUser() {
   const { isMobile } = useSidebar();
@@ -39,33 +35,6 @@ export function NavUser() {
       error: (err) => err?.data?.message,
     });
   };
-
-  useEffect(() => {
-    if (user?._id) {
-      if ('geolocation' in navigator) {
-        const watchId = navigator.geolocation.watchPosition(
-          (position) => {
-            const { latitude, longitude, speed } = position.coords;
-            const speedKmh = speed !== null ? speed * 3.6 : 0;
-
-            customerSocket.emit('agentLocation', {
-              customerId: user._id,
-              lat: latitude,
-              lng: longitude,
-              speed: Math.round(speedKmh),
-            });
-          },
-          (err) => console.error(err),
-          { enableHighAccuracy: true, maximumAge: 0, timeout: Infinity },
-        );
-
-        return () => {
-          navigator.geolocation.clearWatch(watchId);
-          customerSocket.emit('agentDisconnect', user._id);
-        };
-      }
-    }
-  }, [user?._id]);
 
   return (
     <SidebarMenu>

@@ -1,15 +1,47 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Banknote, Clock, Package2, Truck } from 'lucide-react';
 import Typography from '@/components/ui/typography';
 import Heading from '@/components/ui/heading';
+import { createSocket } from '../../../../../lib/socket';
+import useUser from '../../../../../guard/useUser';
+
+const customerSocket = createSocket('customer');
 
 const AgentOverviewStats = () => {
+  const user = useUser();
+  useEffect(() => {
+    if (user?._id) {
+      if ('geolocation' in navigator) {
+        const watchId = navigator.geolocation.watchPosition(
+          (position) => {
+            const { latitude, longitude, speed } = position.coords;
+            const speedKmh = speed !== null ? speed * 3.6 : 0;
+
+            customerSocket.emit('agentLocation', {
+              customerId: user._id,
+              lat: latitude,
+              lng: longitude,
+              speed: Math.round(speedKmh),
+            });
+          },
+          (err) => console.error(err),
+          { enableHighAccuracy: true, maximumAge: 0, timeout: Infinity },
+        );
+
+        return () => {
+          navigator.geolocation.clearWatch(watchId);
+          customerSocket.emit('agentDisconnect', user._id);
+        };
+      }
+    }
+  }, [user?._id]);
+
   return (
     <section>
-      <div className="grid gap-4 grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
         <Card className="border-t-4 border-t-green-600 transition-all duration-500 hover:-translate-y-0.5">
           <CardContent>
             <div className="flex items-center gap-3">
