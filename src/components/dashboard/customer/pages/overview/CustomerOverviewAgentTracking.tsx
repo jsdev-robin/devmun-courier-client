@@ -2,14 +2,10 @@
 
 import React from 'react';
 
-import GetLiveTrackingMap from '../../../../features/GetLiveTrackingMap';
-
 const CustomerOverviewAgentTracking = () => {
   return (
     <section>
-      <div className="container">
-        <GetLiveTrackingMap id="" />
-      </div>
+      <div className="container">dfd</div>
     </section>
   );
 };
