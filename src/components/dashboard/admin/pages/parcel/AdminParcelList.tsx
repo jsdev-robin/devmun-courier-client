@@ -11,14 +11,22 @@ import { Parcel } from '@/lib/features/types/parcel';
 import RowDragHandle from '@/components/ui/row-drag-handle';
 import RowPin from '@/components/ui/row-pin';
 import { Button } from '@/components/ui/button';
-import { Edit, Eye, Trash } from 'lucide-react';
+import { Edit, Eye, FolderUp, Trash } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import IndeterminateCheckbox from '@/components/ui/indeterminate-checkbox';
 import { buildQueryParams } from '@/lib/buildQueryParams';
 import { getSortString } from '@/lib/getSortString';
 import { useGetParcelByAdminQuery } from '../../../../../lib/features/services/adminControl/adminControllApi';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import MunTable from '../../../../grid/mun-table';
+import Image from 'next/image';
+import { useFileDownload } from '../../../../../hooks/useFileDownload';
 
 const AdminParcelList = () => {
   const columns = useMemo<ColumnDef<Parcel, unknown>[]>(
@@ -39,19 +47,14 @@ const AdminParcelList = () => {
       },
       {
         id: 'pin',
-        header: () => 'Pin',
+        header: 'Pin',
         cell: ({ row }) => <RowPin row={row} />,
         size: 60,
         maxSize: 60,
       },
       {
         id: 'actions',
-        header: () => (
-          <div className="flex items-center justify-between w-[180px]">
-            <div>Actions</div>
-            <div className="writing-mode-vertical-rl">Online</div>
-          </div>
-        ),
+        header: 'Actions',
         cell: () => (
           <div className="flex items-center gap-4">
             <Button variant="outline" size="icon" className="size-8">
@@ -95,66 +98,252 @@ const AdminParcelList = () => {
       },
       {
         id: 'trackingId',
-        accessorKey: 'trackingId',
         header: 'Tracking ID',
+        accessorKey: 'trackingId',
+        enableColumnFilter: true,
         meta: { filterVariant: 'text' },
         enableHiding: false,
       },
       {
-        id: 'customer',
-        header: 'customer Info',
+        id: 'parcelInfo',
+        header: 'Parcel Info',
         columns: [
           {
-            id: 'customerName',
-            header: 'Full Name',
-            accessorFn: (row) =>
-              `${row.customer.familyName} ${row.customer.givenName}`,
+            id: 'parcelSize',
+            header: 'Size',
+            accessorKey: 'parcelSize',
+            meta: { filterVariant: 'select' },
           },
           {
-            id: 'customerContact',
-            header: 'Phone / Email',
-            accessorFn: (row) => row.customer,
-            cell: ({ row }) => {
-              const customer = row.original.customer;
-              return (
-                <div className="flex flex-col">
-                  <a
-                    href={`tel:${customer.phone}`}
-                    className="text-blue-600 underline"
-                  >
-                    {customer.phone}
-                  </a>
-                  <a
-                    href={`mailto:${customer.email}`}
-                    className="text-blue-600 underline"
-                  >
-                    {customer.email}
-                  </a>
-                </div>
-              );
-            },
+            id: 'parcelType',
+            header: 'Type',
+            accessorKey: 'parcelType',
+            meta: { filterVariant: 'select' },
           },
           {
-            id: 'customerAddress',
+            id: 'paymentMethod',
+            header: 'Payment Method',
+            accessorKey: 'paymentMethod',
+            meta: { filterVariant: 'select' },
+          },
+          {
+            id: 'codAmount',
+            header: 'COD Amount',
+            accessorKey: 'codAmount',
+            meta: { filterVariant: 'range' },
+          },
+          {
+            id: 'status',
+            header: 'Status',
+            accessorKey: 'status',
+            meta: { filterVariant: 'select' },
+          },
+          { id: 'priority', header: 'Priority', accessorKey: 'priority' },
+          {
+            id: 'pickupAddress',
+            header: 'Pickup Address',
+            accessorKey: 'pickupAddress',
+            meta: { filterVariant: 'text' },
+          },
+          {
+            id: 'deliveryAddress',
+            header: 'Delivery Address',
+            accessorKey: 'deliveryAddress',
+            meta: { filterVariant: 'text' },
+          },
+          {
+            id: 'pickupLocation',
+            header: 'Pickup Location',
+            columns: [
+              {
+                id: 'pickupLocation.lat',
+                header: 'Lat',
+                accessorFn: (row) => row.pickupLocation?.lat,
+              },
+              {
+                id: 'pickupLocation.lng',
+                header: 'Lng',
+                accessorFn: (row) => row.pickupLocation?.lng,
+              },
+            ],
+          },
+          { id: 'notes', header: 'Notes', accessorKey: 'notes' },
+        ],
+      },
+      {
+        id: 'customerInfo',
+        header: 'Customer Info',
+        columns: [
+          {
+            id: 'customer.familyName',
+            header: 'Family Name',
+            accessorFn: (row) => row.customer.familyName,
+            meta: { filterVariant: 'text' },
+          },
+          {
+            id: 'customer.givenName',
+            header: 'Given Name',
+            accessorFn: (row) => row.customer.givenName,
+            meta: { filterVariant: 'text' },
+          },
+          {
+            id: 'customer.email',
+            header: 'Email',
+            accessorFn: (row) => row.customer.email,
+            meta: { filterVariant: 'text' },
+          },
+          {
+            id: 'customer.phone',
+            header: 'Phone',
+            accessorFn: (row) => row.customer.phone,
+            meta: { filterVariant: 'text' },
+          },
+          {
+            id: 'customer.address',
             header: 'Address',
-            accessorFn: (row) => row.customer,
-            cell: ({ row }) => {
-              const customer = row.original.customer;
-              return (
-                <div className="flex flex-col">
-                  <span>
-                    <strong>City:</strong> {customer.address?.city}
-                  </span>
-                  <span>
-                    <strong>State Division:</strong>{' '}
-                    {customer.address?.stateDivision}
-                  </span>
-                  <span>
-                    <strong>Zip Code:</strong> {customer.address?.zipCode}
-                  </span>
-                </div>
-              );
-            },
+            columns: [
+              {
+                id: 'customer.address.addressLine1',
+                header: 'Line 1',
+                accessorFn: (row) => row.customer.address?.addressLine1,
+              },
+              {
+                id: 'customer.address.addressLine2',
+                header: 'Line 2',
+                accessorFn: (row) => row.customer.address?.addressLine2,
+              },
+              {
+                id: 'customer.address.city',
+                header: 'City',
+                accessorFn: (row) => row.customer.address?.city,
+              },
+              {
+                id: 'customer.address.stateDivision',
+                header: 'State/Division',
+                accessorFn: (row) => row.customer.address?.stateDivision,
+              },
+              {
+                id: 'customer.address.zipCode',
+                header: 'Zip Code',
+                accessorFn: (row) => row.customer.address?.zipCode,
+              },
+              {
+                id: 'customer.address.landmark',
+                header: 'Landmark',
+                accessorFn: (row) => row.customer.address?.landmark,
+              },
+              {
+                id: 'customer.address.location',
+                header: 'Location',
+                columns: [
+                  {
+                    id: 'customer.address.location.lat',
+                    header: 'Lat',
+                    accessorFn: (row) => row.customer.address?.location?.lat,
+                  },
+                  {
+                    id: 'customer.address.location.lng',
+                    header: 'Lng',
+                    accessorFn: (row) => row.customer.address?.location?.lng,
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'receiverInfo',
+        header: 'Receiver Info',
+        columns: [
+          { id: 'receiverName', header: 'Name', accessorKey: 'receiverName' },
+          {
+            id: 'receiverPhone',
+            header: 'Phone',
+            accessorKey: 'receiverPhone',
+          },
+        ],
+      },
+      {
+        id: 'agentInfo',
+        header: 'Agent Info',
+        columns: [
+          {
+            id: 'agent',
+            header: 'Agent',
+            cell: ({ row }) => (
+              <div className="flex items-center gap-2">
+                <Image
+                  src={row.original.agent.avatar?.url}
+                  alt="avatar"
+                  width={32}
+                  height={32}
+                  className="w-8 h-8 rounded-full"
+                />
+                <span>
+                  {row.original.agent.familyName} {row.original.agent.givenName}
+                </span>
+              </div>
+            ),
+          },
+          {
+            id: 'agent.email',
+            header: 'Email',
+            accessorFn: (row) => row.agent.email,
+          },
+          {
+            id: 'agent.phone',
+            header: 'Phone',
+            accessorFn: (row) => row.agent.phone,
+          },
+          {
+            id: 'agent.address',
+            header: 'Address',
+            columns: [
+              {
+                id: 'agent.address.addressLine1',
+                header: 'Line 1',
+                accessorFn: (row) => row.agent.address?.addressLine1,
+              },
+              {
+                id: 'agent.address.city',
+                header: 'City',
+                accessorFn: (row) => row.agent.address?.city,
+              },
+              {
+                id: 'agent.address.stateDivision',
+                header: 'State/Division',
+                accessorFn: (row) => row.agent.address?.stateDivision,
+              },
+              {
+                id: 'agent.address.zipCode',
+                header: 'Zip Code',
+                accessorFn: (row) => row.agent.address?.zipCode,
+              },
+              {
+                id: 'agent.address.landmark',
+                header: 'Landmark',
+                accessorFn: (row) => row.agent.address?.landmark,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'timestamps',
+        header: 'Timestamps',
+        columns: [
+          {
+            id: 'createdAt',
+            header: 'Created At',
+            accessorKey: 'createdAt',
+            meta: { filterVariant: 'dateRange' },
+          },
+          {
+            id: 'updatedAt',
+            header: 'Updated At',
+            accessorKey: 'updatedAt',
+            meta: { filterVariant: 'dateRange' },
           },
         ],
       },
@@ -168,7 +357,7 @@ const AdminParcelList = () => {
   });
   const [globalFilter, setGlobalFilter] = useState('');
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([]);
   const queryParams = buildQueryParams(columnFilters);
   const sort = getSortString(sorting);
 
@@ -179,10 +368,47 @@ const AdminParcelList = () => {
     globalFilter,
   });
 
+  const { downloadFile } = useFileDownload();
+
+  const handleExportExcel = () => {
+    downloadFile({
+      url:
+        process.env.NODE_ENV === 'production'
+          ? 'https://api.devmun.xyz/api/v1/admin/parcel/export/csv'
+          : 'http://localhost:8080/api/v1/admin/parcel/export/csv',
+      fileName: 'parcels.xlsx',
+      fileType:
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+  };
+
+  const handleExportPDF = () => {
+    downloadFile({
+      url:
+        process.env.NODE_ENV === 'production'
+          ? 'https://api.devmun.xyz/api/v1/admin/parcel/export/pdf'
+          : 'http://localhost:8080/api/v1/admin/parcel/export/pdf',
+      fileName: 'parcels.pdf',
+      fileType: 'application/pdf',
+    });
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle translate="yes">Product List</CardTitle>
+        <CardTitle translate="yes">Parcel List</CardTitle>
+        <CardAction>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={handleExportExcel}>
+              <FolderUp />
+              Export CSV
+            </Button>
+            <Button size="sm" variant="outline" onClick={handleExportPDF}>
+              <FolderUp />
+              Export PDF
+            </Button>
+          </div>
+        </CardAction>
       </CardHeader>
       <CardContent>
         <MunTable
