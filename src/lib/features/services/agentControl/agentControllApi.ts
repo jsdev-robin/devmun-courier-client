@@ -1,7 +1,10 @@
 import { apiSlice } from '../../api/api';
 import { SuccessResponse } from '../../types';
 import { GetQueryParams, ParcelResponse } from '../../types/api-response';
-import { ParcelStatusUpdateRequest } from '../../types/parcel';
+import {
+  ParcelAnalyticsResponse,
+  ParcelStatusUpdateRequest,
+} from '../../types/parcel';
 
 export const agentControllApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -14,6 +17,25 @@ export const agentControllApi = apiSlice.injectEndpoints({
         if (sort) url += `&${sort}`;
         if (globalFilter) url += `&q=${globalFilter}`;
         return { url, method: 'GET' };
+      },
+      providesTags: ['AgentParcel'],
+    }),
+
+    getParcelAnalyticsByAgent: builder.query<
+      ParcelResponse & {
+        data: ParcelAnalyticsResponse;
+      },
+      { startDate?: string; endDate?: string }
+    >({
+      query: ({ startDate, endDate }) => {
+        const params = new URLSearchParams();
+        if (startDate) params.append('startDate', startDate);
+        if (endDate) params.append('endDate', endDate);
+
+        return {
+          url: `/agent/parcel/analytics?${params.toString()}`,
+          method: 'GET',
+        };
       },
       providesTags: ['AgentParcel'],
     }),
@@ -34,5 +56,6 @@ export const agentControllApi = apiSlice.injectEndpoints({
 
 export const {
   useGetParcelByAgentQuery,
+  useGetParcelAnalyticsByAgentQuery,
   useParcelStatusUpdateByAgentMutation,
 } = agentControllApi;

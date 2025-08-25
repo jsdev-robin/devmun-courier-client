@@ -53,3 +53,42 @@ export interface Parcel {
   customer: IUser;
   agent: IUser;
 }
+
+export interface Parcel {
+  _id: string;
+  trackingId: string;
+  receiverName: string;
+  codAmount: number;
+  createdAt: string;
+}
+
+export interface Breakdown {
+  _id: string;
+  count: number;
+  totalCOD: number;
+}
+
+export interface AnalyticsItem {
+  _id: string;
+  count: number;
+  totalCOD: number;
+  averageCOD: number;
+  parcels: Parcel[];
+  sizeBreakdown: Breakdown[];
+  typeBreakdown: Breakdown[];
+  priorityBreakdown: Breakdown[];
+}
+
+export interface Summary {
+  _id: string | null;
+  totalParcels: number;
+  totalCOD: number;
+  avgCOD: number;
+  deliveredCount: number;
+  inTransitCount: number;
+}
+
+export interface ParcelAnalyticsResponse {
+  analytics: AnalyticsItem[];
+  summary: Summary;
+}

@@ -7,6 +7,7 @@ import {
 import { cookies } from 'next/headers';
 import { AppSidebar } from '../../../components/dashboard/admin/layouts/app-sidebar';
 import { Separator } from '../../../components/ui/separator';
+import DatePicker from '../../../components/ui/date-picker';
 
 const AdminDashboardLayout = async ({
   children,
@@ -35,6 +36,7 @@ const AdminDashboardLayout = async ({
               className="mr-2 data-[orientation=vertical]:h-4"
             />
           </div>
+          <DatePicker />
         </header>
         <div className="p-4 space-y-6 lg:space-y-10">{children}</div>
       </SidebarInset>

@@ -15,8 +15,8 @@ import {
 import { Skeleton } from '../../../../ui/skeleton';
 import AgentParcelCard from './particles/AgentParcelCard';
 import { useGetParcelByAgentQuery } from '../../../../../lib/features/services/agentControl/agentControllApi';
-import AgentDeliveryRoute from './particles/AgentDeliveryRoute';
 import AgentUpdateParcelStatus from './particles/AgentUpdateParcelStatus';
+import AgentDeliveryRoute from '../route/AgentDeliveryRoute';
 
 const AgentAssignedParcels = () => {
   const { data, isLoading, isError } = useGetParcelByAgentQuery({
