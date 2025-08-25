@@ -1,10 +1,10 @@
 import React from 'react';
-import AdminDeliveryRoute from '../../../../components/dashboard/admin/pages/route/AdminDeliveryRoute';
+import AgentDeliveryRoute from '../../../../components/dashboard/agent/pages/route/AgentDeliveryRoute';
 
 const AdminDeliveryRoutePage = () => {
   return (
     <>
-      <AdminDeliveryRoute />
+      <AgentDeliveryRoute />
     </>
   );
 };

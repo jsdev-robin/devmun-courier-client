@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import {
   Card,
@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/card';
 import { useGetParcelByAgentQuery } from '../../../../../lib/features/services/agentControl/agentControllApi';
 import { createPulsingDot } from '../../../../../utils/pulsingDot';
+import { useRealTimeLocation } from '../../../../../hooks/useRealtimeLocation';
 
 const AgentDeliveryRoute = () => {
   const { data } = useGetParcelByAgentQuery({
@@ -18,35 +19,9 @@ const AgentDeliveryRoute = () => {
   });
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(
-    null,
-  );
-  const locationWatchId = useRef<number | null>(null);
+  const { location: userLocation } = useRealTimeLocation();
   const mapInitializedRef = useRef(false);
   const userLocationAddedRef = useRef(false);
-
-  useEffect(() => {
-    if (!navigator.geolocation) return;
-
-    locationWatchId.current = navigator.geolocation.watchPosition(
-      (position) => {
-        const { longitude, latitude } = position.coords;
-        setUserLocation([longitude, latitude]);
-      },
-      null,
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 30000,
-      },
-    );
-
-    return () => {
-      if (locationWatchId.current !== null) {
-        navigator.geolocation.clearWatch(locationWatchId.current);
-      }
-    };
-  }, []);
 
   useEffect(() => {
     if (!mapContainerRef.current || mapInitializedRef.current) return;

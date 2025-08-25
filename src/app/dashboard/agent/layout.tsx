@@ -5,9 +5,9 @@ import {
   SidebarTrigger,
 } from '../../../components/ui/sidebar';
 import { cookies } from 'next/headers';
-import { AppSidebar } from '../../../components/dashboard/admin/layouts/app-sidebar';
 import { Separator } from '../../../components/ui/separator';
 import DatePicker from '../../../components/ui/date-picker';
+import { AppSidebar } from '../../../components/dashboard/agent/layouts/app-sidebar';
 
 const AdminDashboardLayout = async ({
   children,

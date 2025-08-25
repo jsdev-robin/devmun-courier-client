@@ -1,43 +1,82 @@
-import { useEffect, useState } from 'react';
+'use client';
 
-interface UseRealtimeLocationOptions {
+import { useEffect, useRef, useState } from 'react';
+
+interface UseRealTimeLocationOptions {
   enableHighAccuracy?: boolean;
   timeout?: number;
   maximumAge?: number;
 }
 
-export const useRealtimeLocation = (
-  options: UseRealtimeLocationOptions = {},
-) => {
+interface UseRealTimeLocationReturn {
+  location: [number, number] | null;
+  error: string | null;
+  isLoading: boolean;
+}
+
+export const useRealTimeLocation = (
+  options: UseRealTimeLocationOptions = {},
+): UseRealTimeLocationReturn => {
   const [location, setLocation] = useState<[number, number] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const watchId = useRef<number | null>(null);
+
+  const {
+    enableHighAccuracy = true,
+    timeout = 10000,
+    maximumAge = 30000,
+  } = options;
 
   useEffect(() => {
     if (!navigator.geolocation) {
-      setError('Geolocation not supported');
+      setError('Geolocation is not supported by this browser.');
+      setIsLoading(false);
       return;
     }
 
-    const watchId = navigator.geolocation.watchPosition(
-      (position) => {
-        const userLocation: [number, number] = [
-          position.coords.longitude,
-          position.coords.latitude,
-        ];
-        setLocation(userLocation);
-      },
-      (err) => setError(err.message),
-      {
-        enableHighAccuracy: options.enableHighAccuracy ?? true,
-        timeout: options.timeout ?? Infinity,
-        maximumAge: options.maximumAge ?? 0,
-      },
-    );
+    setIsLoading(true);
+
+    const onSuccess = (position: GeolocationPosition) => {
+      const { longitude, latitude } = position.coords;
+      setLocation([longitude, latitude]);
+      setError(null);
+      setIsLoading(false);
+    };
+
+    const onError = (error: GeolocationPositionError) => {
+      let errorMessage = 'Unable to retrieve your location';
+
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          errorMessage = 'Location access denied by user';
+          break;
+        case error.POSITION_UNAVAILABLE:
+          errorMessage = 'Location information unavailable';
+          break;
+        case error.TIMEOUT:
+          errorMessage = 'Location request timed out';
+          break;
+        default:
+          errorMessage = `Unknown error: ${error.message}`;
+      }
+
+      setError(errorMessage);
+      setIsLoading(false);
+    };
+
+    watchId.current = navigator.geolocation.watchPosition(onSuccess, onError, {
+      enableHighAccuracy,
+      timeout,
+      maximumAge,
+    });
 
     return () => {
-      navigator.geolocation.clearWatch(watchId);
+      if (watchId.current !== null) {
+        navigator.geolocation.clearWatch(watchId.current);
+      }
     };
-  }, [options.enableHighAccuracy, options.timeout, options.maximumAge]);
+  }, [enableHighAccuracy, timeout, maximumAge]);
 
-  return { location, error };
+  return { location, error, isLoading };
 };

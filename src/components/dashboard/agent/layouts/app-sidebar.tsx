@@ -1,13 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  LayoutDashboard,
-  Package2,
-  Route,
-  UserLock,
-  Users,
-} from 'lucide-react';
+import { LayoutDashboard, Route } from 'lucide-react';
 import { NavMain } from './nav-main';
 import { NavUser } from './nav-user';
 import { TeamSwitcher } from './team-switcher';
@@ -27,28 +21,8 @@ const data = {
       icon: LayoutDashboard,
     },
     {
-      title: 'Parcels',
-      url: '/dashboard/admin/parcels',
-      icon: Package2,
-    },
-    {
-      title: 'Customers',
-      url: '/dashboard/admin/customers',
-      icon: Users,
-    },
-    {
-      title: 'Agents',
-      url: '/dashboard/admin/agents',
-      icon: UserLock,
-    },
-    {
-      title: 'Agents Locaton',
-      url: '/dashboard/admin/agents/location',
-      icon: UserLock,
-    },
-    {
       title: 'Delivery Route',
-      url: '/dashboard/admin/delivery-route',
+      url: '/dashboard/agent/delivery-route',
       icon: Route,
     },
   ],
