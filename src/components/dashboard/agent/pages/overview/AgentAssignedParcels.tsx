@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Heading from '../../../../ui/heading';
 import { Button } from '../../../../ui/button';
-import { Filter, SortAsc } from 'lucide-react';
+import { QrCode } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -17,10 +17,24 @@ import AgentParcelCard from './particles/AgentParcelCard';
 import { useGetParcelByAgentQuery } from '../../../../../lib/features/services/agentControl/agentControllApi';
 import AgentUpdateParcelStatus from './particles/AgentUpdateParcelStatus';
 import AgentDeliveryRoute from '../route/AgentDeliveryRoute';
+import { Scanner } from '@yudiel/react-qr-scanner';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 const AgentAssignedParcels = () => {
+  const [scanResult, setScanResult] = useState('');
+  const [scannerOpen, setScannerOpen] = useState(false);
+
   const { data, isLoading, isError } = useGetParcelByAgentQuery({
-    queryParams: 'status[ne]=delivered',
+    queryParams: `status[ne]=delivered${
+      scanResult ? `&trackingId=${scanResult}` : ''
+    }`,
   });
 
   return (
@@ -32,18 +46,35 @@ const AgentAssignedParcels = () => {
               <div className="flex items-center justify-between">
                 <Heading as="h6">Assigned Parcels</Heading>
                 <div className="flex items-center gap-3">
-                  <Button size="sm" variant="outline">
-                    <Filter />
-                    Filter
-                  </Button>
-                  <Button size="sm">
-                    <SortAsc />
-                    Sort
-                  </Button>
+                  <Dialog open={scannerOpen} onOpenChange={setScannerOpen}>
+                    <DialogTrigger asChild>
+                      <Button onClick={() => setScannerOpen(true)}>
+                        <QrCode />
+                        Scan QR Code
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Parcel QR Scanner</DialogTitle>
+                        <DialogDescription>
+                          Scan parcel QR codes instantly to view details.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <Scanner
+                        onScan={(results) => {
+                          if (results.length > 0) {
+                            setScanResult(results[0].rawValue);
+                            setScannerOpen(false);
+                          }
+                        }}
+                      />
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </div>
+
               {isError ? (
-                <div>dfd</div>
+                <div>Error loading parcels.</div>
               ) : isLoading ? (
                 [...Array(4)].map((_, i) => (
                   <Card key={i}>
