@@ -29,7 +29,7 @@ import { Loader } from 'lucide-react';
 import { toast } from 'sonner';
 
 const parcelUpdateSchema = z.object({
-  parcelId: z.string(),
+  parcelId: z.string().min(1, 'Parcel selection is required'),
   status: z.string().min(1, 'Status name is required'),
   notes: z.string().max(500).optional(),
 });
@@ -64,7 +64,7 @@ const AgentUpdateParcelStatus = () => {
   }
 
   const { data, isLoading } = useGetParcelByAgentQuery({
-    queryParams: 'status[ne]=booked,delivered',
+    queryParams: 'status[ne]=delivered',
   });
 
   return (

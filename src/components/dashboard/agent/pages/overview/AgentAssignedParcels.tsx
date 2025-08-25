@@ -29,11 +29,10 @@ import {
 
 const AgentAssignedParcels = () => {
   const [scanResult, setScanResult] = useState('');
-  const [scannerOpen, setScannerOpen] = useState(false);
 
   const { data, isLoading, isError } = useGetParcelByAgentQuery({
-    queryParams: `status[ne]=delivered${
-      scanResult ? `&trackingId=${scanResult}` : ''
+    queryParams: `status[nin]=delivered${
+      scanResult && `&trackingId=${scanResult}`
     }`,
   });
 
@@ -46,9 +45,9 @@ const AgentAssignedParcels = () => {
               <div className="flex items-center justify-between">
                 <Heading as="h6">Assigned Parcels</Heading>
                 <div className="flex items-center gap-3">
-                  <Dialog open={scannerOpen} onOpenChange={setScannerOpen}>
+                  <Dialog>
                     <DialogTrigger asChild>
-                      <Button onClick={() => setScannerOpen(true)}>
+                      <Button>
                         <QrCode />
                         Scan QR Code
                       </Button>
@@ -64,7 +63,6 @@ const AgentAssignedParcels = () => {
                         onScan={(results) => {
                           if (results.length > 0) {
                             setScanResult(results[0].rawValue);
-                            setScannerOpen(false);
                           }
                         }}
                       />
@@ -72,9 +70,8 @@ const AgentAssignedParcels = () => {
                   </Dialog>
                 </div>
               </div>
-
               {isError ? (
-                <div>Error loading parcels.</div>
+                <div>dfd</div>
               ) : isLoading ? (
                 [...Array(4)].map((_, i) => (
                   <Card key={i}>
