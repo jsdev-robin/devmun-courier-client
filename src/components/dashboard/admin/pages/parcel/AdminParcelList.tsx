@@ -6,12 +6,12 @@ import {
   PaginationState,
   SortingState,
 } from '@tanstack/react-table';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Parcel } from '@/lib/features/types/parcel';
 import RowDragHandle from '@/components/ui/row-drag-handle';
 import RowPin from '@/components/ui/row-pin';
 import { Button } from '@/components/ui/button';
-import { Edit, Eye, FolderUp, Trash } from 'lucide-react';
+import { Eye, File, FileText, ScrollText } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import IndeterminateCheckbox from '@/components/ui/indeterminate-checkbox';
 import { buildQueryParams } from '@/lib/buildQueryParams';
@@ -27,8 +27,34 @@ import {
 import MunTable from '../../../../grid/mun-table';
 import Image from 'next/image';
 import { useFileDownload } from '../../../../../hooks/useFileDownload';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { QrCode } from 'lucide-react';
+import { Scanner } from '@yudiel/react-qr-scanner';
 
 const AdminParcelList = () => {
+  const { downloadFile } = useFileDownload();
+
+  const handleExportInvoice = useCallback(
+    (id: string) => {
+      downloadFile({
+        url:
+          process.env.NODE_ENV === 'production'
+            ? `https://api.devmun.xyz/api/v1/admin/parcel/export/invoice/${id}`
+            : `http://localhost:8080/api/v1/admin/parcel/export/invoice/${id}`,
+        fileName: 'parcel.pdf',
+        fileType: 'application/pdf',
+      });
+    },
+    [downloadFile],
+  );
+
   const columns = useMemo<ColumnDef<Parcel, unknown>[]>(
     () => [
       {
@@ -55,22 +81,25 @@ const AdminParcelList = () => {
       {
         id: 'actions',
         header: 'Actions',
-        cell: () => (
+        cell: ({ row }) => (
           <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-8"
+              onClick={() => handleExportInvoice(row?.original._id)}
+            >
+              <ScrollText />
+            </Button>
             <Button variant="outline" size="icon" className="size-8">
               <Eye />
             </Button>
-            <Button variant="outline" size="icon" className="size-8">
-              <Edit />
-            </Button>
-            <Button variant="destructive" size="icon" className="size-8">
-              <Trash />
-            </Button>
+
             <Switch />
           </div>
         ),
-        size: 200,
-        maxSize: 200,
+        size: 150,
+        maxSize: 150,
         enableColumnFilter: false,
       },
       {
@@ -348,7 +377,7 @@ const AdminParcelList = () => {
         ],
       },
     ],
-    [],
+    [handleExportInvoice],
   );
 
   const [pagination, setPagination] = useState<PaginationState>({
@@ -367,8 +396,6 @@ const AdminParcelList = () => {
     sort,
     globalFilter,
   });
-
-  const { downloadFile } = useFileDownload();
 
   const handleExportExcel = () => {
     downloadFile({
@@ -399,12 +426,35 @@ const AdminParcelList = () => {
         <CardTitle translate="yes">Parcel List</CardTitle>
         <CardAction>
           <div className="flex items-center gap-2">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button>
+                  <QrCode />
+                  Scan QR Code
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Parcel QR Scanner</DialogTitle>
+                  <DialogDescription>
+                    Scan parcel QR codes instantly to view details.
+                  </DialogDescription>
+                </DialogHeader>
+                <Scanner
+                  onScan={(results) => {
+                    if (results.length > 0) {
+                      setGlobalFilter(results[0].rawValue);
+                    }
+                  }}
+                />
+              </DialogContent>
+            </Dialog>
             <Button size="sm" variant="outline" onClick={handleExportExcel}>
-              <FolderUp />
+              <File />
               Export CSV
             </Button>
             <Button size="sm" variant="outline" onClick={handleExportPDF}>
-              <FolderUp />
+              <FileText />
               Export PDF
             </Button>
           </div>

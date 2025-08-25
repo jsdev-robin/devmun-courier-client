@@ -46,28 +46,6 @@ const statusConfig: Record<
 const AdminOverviewState = () => {
   const { data, isLoading, isError } = useParcelStatusDistributionQuery();
 
-  // const downloadPDF = async () => {
-  //   try {
-  //     const response = await axios.get(
-  //       'http://localhost:8080/api/v1/admin/parcel/export/invoice/68abda5a952273620ab374b6',
-  //       {
-  //         responseType: 'blob',
-  //         withCredentials: true,
-  //       },
-  //     );
-
-  //     const url = window.URL.createObjectURL(new Blob([response.data]));
-  //     const link = document.createElement('a');
-  //     link.href = url;
-  //     link.setAttribute('download', 'parcels.pdf');
-  //     document.body.appendChild(link);
-  //     link.click();
-  //     link.remove();
-  //   } catch (error) {
-  //     console.error('Error downloading PDF', error);
-  //   }
-  // };
-
   return (
     <section>
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
